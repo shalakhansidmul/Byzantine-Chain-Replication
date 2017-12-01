@@ -1,0 +1,20 @@
+2017-11-22 20:12:56,338 - Master_logger - INFO - building master
+2017-11-22 20:12:56,682 - Master - INFO - Master setup completed
+2017-11-22 20:12:56,683 - Master_logger - INFO - starting master
+2017-11-22 20:12:56,685 - Master_logger - INFO - building olympus
+2017-11-22 20:13:07,819 - Master_logger - INFO - starting olympus
+2017-11-22 20:13:07,820 - Master_logger - INFO - building client : 0
+2017-11-22 20:13:10,045 - Master_logger - INFO - starting client : 0
+2017-11-22 20:13:10,048 - Master_logger - INFO - building client : 1
+2017-11-22 20:13:10,117 - Master - INFO - received client0 final state: OrderedDict([('movie', 'a')])
+2017-11-22 20:13:11,799 - Master_logger - INFO - starting client : 1
+2017-11-22 20:13:11,800 - Master_logger - INFO - building client : 2
+2017-11-22 20:13:14,474 - Master_logger - INFO - starting client : 2
+2017-11-22 20:13:21,636 - Master - INFO - received client1 final state: OrderedDict()
+2017-11-22 20:13:24,271 - Master - INFO - received client2 final state: OrderedDict()
+2017-11-22 20:13:24,376 - Master - INFO - received all replicas final state: OrderedDict([(0, OrderedDict([('movie', 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaababababababababababababababababababababababababababababbababababababababababababababababababababababababababababababababbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb')])), (1, OrderedDict([('movie', 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaababababababababababababababababababababababababababababbababababababababababababababababababababababababababababababababbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb')])), (2, OrderedDict([('movie', 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaababababababababababababababababababababababababababababbababababababababababababababababababababababababababababababababbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb')])), (3, OrderedDict([('movie', 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaababababababababababababababababababababababababababababbababababababababababababababababababababababababababababababababbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb')])), (4, OrderedDict([('movie', 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaababababababababababababababababababababababababababababbababababababababababababababababababababababababababababababababbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb')]))])
+2017-11-22 20:13:24,376 - Master - INFO - comparing all replicas final state of data dictionary
+2017-11-22 20:13:24,376 - Master - INFO - all replicas have same final state of data dictionary
+2017-11-22 20:13:24,376 - Master - INFO - replicas final state OrderedDict([(0, OrderedDict([('movie', 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaababababababababababababababababababababababababababababbababababababababababababababababababababababababababababababababbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb')])), (1, OrderedDict([('movie', 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaababababababababababababababababababababababababababababbababababababababababababababababababababababababababababababababbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb')])), (2, OrderedDict([('movie', 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaababababababababababababababababababababababababababababbababababababababababababababababababababababababababababababababbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb')])), (3, OrderedDict([('movie', 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaababababababababababababababababababababababababababababbababababababababababababababababababababababababababababababababbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb')])), (4, OrderedDict([('movie', 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaababababababababababababababababababababababababababababbababababababababababababababababababababababababababababababababbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb')]))]) 
+2017-11-22 20:13:24,377 - Master - INFO - client final state {0: OrderedDict([('movie', 'a')]), 1: OrderedDict(), 2: OrderedDict()} 
+2017-11-22 20:13:24,377 - Master - INFO - test case PASSED

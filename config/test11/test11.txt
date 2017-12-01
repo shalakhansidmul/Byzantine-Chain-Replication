@@ -1,0 +1,11 @@
+start cmd /k python -m da --message-buffer-size  1000000 -n MasterNode  master.da config11.txt
+timeout 2
+start cmd /k python -m da --message-buffer-size  1000000 -n ReplicaNode0 -D replica.da
+timeout 2
+start cmd /k python -m da --message-buffer-size  1000000 -n ReplicaNode1 -D replica.da
+timeout 2
+start cmd /k python -m da --message-buffer-size  1000000 -n ReplicaNode2 -D replica.da
+timeout 2
+start cmd /k python -m da --message-buffer-size  1000000 -n OlympusNode -D olympus.da
+timeout 2
+start cmd /k python -m da --message-buffer-size  1000000 -n ClientNode0 -D client.da

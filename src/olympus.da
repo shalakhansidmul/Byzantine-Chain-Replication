@@ -1,0 +1,857 @@
+# importing required libraries
+import os
+import sys
+import logging
+import time
+import datetime
+import pickle
+import copy
+import nacl.encoding
+import nacl
+import nacl.signing
+from nacl.bindings.utils import sodium_memcmp
+from copy import deepcopy
+from collections import OrderedDict
+from itertools import combinations
+config(channel is {fifo, reliable}, clock is lamport)
+
+# importing replica and client modules
+da_client = import_da('client')
+da_replica = import_da('replica')
+
+
+# Olympus process definition
+
+
+class Olympus(process):
+    # initialization to be performed before starting the process
+    def setup(config, master):
+        self.config_id = -1
+        self.config = config  # configuration parameters from config.txt
+        # current replica configuration dictionary
+        self.configuration = OrderedDict()
+        self.private_keys = []  # current configuration replicas signing keys
+        self.public_keys = []  # current configuration replicas verify keys
+        self.public_keys_bytes = []  # hex encoded verify keys of replicas
+        # dictionary for verify keys of clients
+        self.client_keys = OrderedDict()
+        self.client_keys_bytes = OrderedDict()
+        # total number of replicas in current configuration
+        self.num_replicas = 2 * config['t'] + 1
+        self.quorum = config['t'] + 1
+        self.done_count = 0
+        self.logger = initialize_logger()
+        logger.info('Olympus setup completed')
+        logger.info(
+            'initial settings:\n num of replicas: %s \n num of clients: %s',
+            num_replicas,
+            config['num_client'])
+        self.master = master
+        self.replica_data = OrderedDict()
+        self.signing_key = nacl.signing.SigningKey.generate()
+        self.verify_key_hex = signing_key.verify_key.encode(
+            encoder=nacl.encoding.HexEncoder)
+        self.global_wedged_statements = OrderedDict()
+        self.clients = OrderedDict()
+        self.caught_up_msgs = OrderedDict()
+        self.last_checkpoint_sn = -1
+        self.consistent_running_state = None
+        self.old_head = None
+        self.reconfig_in_progress = False
+        self.client_responses = OrderedDict()
+        self.invalid_replicas = OrderedDict()
+        self.QC = []
+
+    # create logger for logging into Olympus.log file
+    def initialize_logger():
+        logger = logging.getLogger('Olympus')
+        logger.setLevel(logging.DEBUG)
+        fh = logging.FileHandler('Olympus-log-' + config['test_case_name'])
+        fh.setLevel(logging.DEBUG)
+        formatter = logging.Formatter(
+            '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        fh.setFormatter(formatter)
+        logger.addHandler(fh)
+        return logger
+
+    # This method creates Signing and Verify keys for replicas in the
+    # configuration
+    def generate_replicas_keys():
+        logger.info('generating keys for all replicas')
+        private_keys = []
+        public_keys = []
+        public_keys_bytes = []
+        for i in range(num_replicas):
+            private_key = nacl.signing.SigningKey.generate()
+            private_key_hex = private_key.encode(
+                encoder=nacl.encoding.HexEncoder)
+            private_keys.append(private_key_hex)
+            public_key = private_key.verify_key
+            public_keys.append(public_key)
+            public_key_hex = public_key.encode(
+                encoder=nacl.encoding.HexEncoder)
+            public_keys_bytes.append(public_key_hex)
+
+    # create instances of replica processes
+    def build_replicas(config):
+        config_id += 1
+        replicas = OrderedDict()
+        head = 'replica0'
+        logger.info(' building head replica')
+        replicas[head] = new(
+            da_replica.Replica,
+            args=(
+                config,
+                self,
+                True,
+                False,
+                0,
+                config_id,
+                verify_key_hex),
+            at='ReplicaNode0')
+        for i in range(1, num_replicas - 1):
+            replica = 'replica' + str(i)
+            logger.info(' building replica %s', i)
+            replicas[replica] = new(
+                da_replica.Replica,
+                args=(
+                    config,
+                    self,
+                    False,
+                    False,
+                    i,
+                    config_id,
+                    verify_key_hex),
+                at='ReplicaNode' +
+                   str(i))
+        tail = 'replica' + str(num_replicas - 1)
+        logger.info(' building tail replica')
+        replicas[tail] = new(da_replica.Replica,
+                             args=(config,
+                                   self,
+                                   False,
+                                   True,
+                                   num_replicas - 1,
+                                   config_id,
+                                   verify_key_hex),
+                             at='ReplicaNode' + str(num_replicas - 1))
+        return replicas
+
+    # start the replica processes
+    def start_replicas(replicas):
+        for i in range(num_replicas):
+            replica = 'replica' + str(i)
+            logger.info('starting replica %s', i)
+            start(replicas[replica])
+
+    # send configuration settings to all replicas
+    def send_init_to_replicas(
+            replicas,
+            consistent_checkpoint=None,
+            longest_history=None,
+            running_state=None):
+        configuration = replicas
+        if not reconfig_in_progress:
+            for i in range(num_replicas):
+                replica = 'replica' + str(i)
+                send(('init',
+                      configuration,
+                      private_keys[i],
+                      public_keys_bytes,
+                      verify_key_hex
+                      ),
+                     to=replicas[replica])
+        else:
+            if consistent_checkpoint is None:
+                csn = None
+            else:
+                csn = consistent_checkpoint[1][0]
+            for i in range(num_replicas):
+                replica = 'replica' + str(i)
+                send(('init_setup',
+                      configuration,
+                      private_keys[i],
+                      public_keys_bytes,
+                      verify_key_hex,
+                      client_keys_bytes,
+                      csn,
+                      longest_history,
+                      running_state,
+                      True),
+                     to=replicas[replica])
+        logger.info(
+            'initial configuration settings sent to %s replicas', num_replicas)
+        logger.info(
+            'configuration sent: %s',
+            configuration)
+
+    # share the verify key of client with all replicas
+    def send_client_public_key_to_replicas(client, key):
+        for replica in configuration.keys():
+            send(('client_key',
+                  client,
+                  key),
+                 to=configuration[replica])
+        logger.info(' sent client public key to all replicas')
+
+    # ask all replicas to terminate
+    def send_done_to_all_replicas():
+        for i in range(len(configuration)):
+            send(('done',), to=configuration['replica' + str(i)])
+            logger.info('sent DONE to replica%s ', i)
+
+    def build_quorum_combinations():
+        for item in combinations(configuration.values(), quorum):
+            QC.append(item)
+        logger.info('built all quorum combinations of replicas %s', QC)
+
+    # create, start and initialize all replicas
+    def run():
+        replicas = build_replicas(config)
+        start_replicas(replicas)
+        generate_replicas_keys()
+        send_init_to_replicas(replicas)
+        logger.info('system initialization successful')
+        # wait for a DONE message from Master
+        await(done_count == config['num_client'])
+        logger.info('received DONE: all clients finished sending messages.')
+        send_done_to_all_replicas()
+        await(len(replica_data) == num_replicas)
+        logger.info('received Replicas Final State.')
+        send(('replicas_final_state', replica_data), to=master)
+        logger.info('sent Replica Final States to Master')
+        logger.info(' Olympus terminating')
+
+    def receive(msg=('done'), from_=client):
+        done_count += 1
+        logger.info(
+            'client :  %s done sending messages. Crrent done_count: %s',
+            client,
+            done_count)
+
+    # handler for client request for current configuration:
+    # wait until configuration is initialized, send the current configuration
+    # to client
+    def receive(
+            msg=(
+                'request_configuration',
+                sender,
+                client_id),
+            from_=sender):
+        logger.info(
+            'received client request for configuration' +
+            'from client with ID : %s',
+            client_id)
+        if reconfig_in_progress:
+            logger.info(
+                'reconfiguration in progress.' +
+                'Ignoring client request for configuration')
+            return
+        await(len(configuration) == num_replicas)
+        logger.info('Total replicas in configuration: %s', num_replicas)
+        send(('configuration', configuration, public_keys_bytes), to=sender)
+        logger.info(
+            'configuration sent to client: \n configuration: %s',
+            configuration)
+
+    # handler for receiving client's public key:
+    # save the client public key in local memory
+    # send acknowledgement to client only after key is shared with all replicas
+    def receive(msg=('client_public_key', client_id, key), from_=sender):
+        logger.info(' received public key of client : %s', sender)
+        client_keys_bytes[sender] = key
+        client_keys[sender] = nacl.signing.VerifyKey(
+            key, encoder=nacl.encoding.HexEncoder)
+        clients[client_id] = sender
+        logger.info('sending client public key to all replicas')
+        send_client_public_key_to_replicas(sender, key)
+        logger.info(
+            'sending acknowledgement to client on receipt of it public key')
+        send(('public_key_received', public_keys_bytes, verify_key_hex),
+             to=sender)
+
+    def receive(msg=('replica_final_state', replica_id, data)):
+        replica_data[replica_id] = data
+        logger.info('received final state of replica %s', replica_id)
+
+    # retrive plaintext checkpoint statements
+    def get_unpickled_checkpoint_statements(checkpoint_proof):
+        logger.info('unpickling checkpoint statements')
+        unpickled_checkpoint_statements = []
+        for i in range(len(checkpoint_proof)):
+            checkpoint_statement = checkpoint_proof[i]
+            replica_verify_key = public_keys[i]
+            try:
+                verified_checkpoint_statement = replica_verify_key.verify(
+                    checkpoint_statement)
+                unpickled_checkpoint_statement = pickle.loads(
+                    verified_checkpoint_statement)
+                unpickled_checkpoint_statements.append(
+                    unpickled_checkpoint_statement)
+            except BaseException:
+                exc_type, exc_value, exc_traceback = sys.exc_info()
+                logger.error(
+                    'Exception occurred in validation of' +
+                    'result statement %s.\n' +
+                    ' Type: %s\n Value: %s\n Trace: %s',
+                    checkpoint_statement,
+                    exc_type,
+                    exc_value,
+                    exc_traceback)
+                return False
+        return unpickled_checkpoint_statements
+
+    def get_hashed_running_state(running_state=None):
+        logger.info('generating hash of the running state')
+        HASHER = nacl.hash.sha256
+        rs_bytes = pickle.dumps(running_state)
+        digest = HASHER(rs_bytes, encoder=nacl.encoding.HexEncoder)
+        return digest
+
+    def validate_checkpoint(wedged_statement):
+        logger.info('validating checkpoint in wedged statement')
+        running_state = wedged_statement[0]
+        if wedged_statement[1] is None:
+            return False
+        checkpoint_proof = wedged_statement[1][1]
+        if len(checkpoint_proof) != num_replicas:
+            return False
+        unpickled_checkpoint_statements = get_unpickled_checkpoint_statements(
+            checkpoint_proof)
+        cryptographic_hash_of_running_state = get_hashed_running_state(
+            running_state)
+        if unpickled_checkpoint_statements:
+            for i in range(len(unpickled_checkpoint_statements)):
+                if unpickled_checkpoint_statements[i][1] != cryptographic_hash_of_running_state:
+                    logger.error(
+                        'validation failed for cryptographic hash of running' +
+                        'state in checkpoint statement number: %s .',
+                        i)
+                    return False
+            logger.info('checkpoint validation passed')
+            return True
+
+    def get_consistent_checkpoint(wedged_statements):
+        max_slot_num = float("-inf")
+        checkpoint = None
+        for key, wedged_statement in wedged_statements.items():
+
+            if validate_checkpoint(wedged_statement):
+                if max_slot_num < wedged_statement[1][0]:
+                    checkpoint = (wedged_statement[0], wedged_statement[1])
+        if checkpoint:
+            logger.info('consistent checkpoint is : %s', checkpoint)
+            return checkpoint
+        return None
+
+    def get_init_parameters(wedged_statements, checkpoint_slot_number):
+        logger.info('getting init parameters for replicas')
+        histories = OrderedDict()
+        # replica : history
+        consistent_histories = OrderedDict()
+        # replca : suffix of history for catch up
+        suffix_for_consistent_histories = OrderedDict()
+        # get history of each replica
+        for replica, w_stmt in wedged_statements.items():
+            hist = w_stmt[2]
+            logger.info(
+                'getting history for slot numbers greater than consistent' +
+                'checkpoint slot number for replica: %s',
+                replica)
+            histories[replica] = get_clipped_history(
+                hist, checkpoint_slot_number)
+            # validate histories for each replica
+        for k, v in histories.items():
+            if not validate_slot_number(v, checkpoint_slot_number):
+                return (False, False)
+                # compare history of each replica for consistency
+        replicas_object = []
+        replicas_history = []
+        for replica, history in sorted(
+                histories.items(), key=lambda x: (-len(x[1]), x[0])):
+            replicas_object.append(replica)
+            replicas_history.append(history)
+            logger.info(
+                'length of history for replica : %s is %s ',
+                replica,
+                len(history))
+        longest = 0
+        consistent_histories[replicas_object[longest]
+                             ] = replicas_history[longest]
+        for j in range(1, quorum):
+            isValid = True
+            consistent = compare_history(
+                replicas_history[longest], replicas_history[j])
+            if consistent:
+                consistent_histories[replicas_object[j]] = replicas_history[j]
+                shortest = j
+                logger.debug(
+                    'history of replica %s consistent with replica %s',
+                    replicas_object[j],
+                    replicas_object[longest])
+            else:
+                logger.debug(
+                    'Inconsistent replica histories found.' +
+                    'Choosing a different quorum.')
+                return (False, False)
+        longest_consistent_history = replicas_history[longest]
+        shortest_consistent_history = replicas_history[shortest]
+        logger.info(
+            'longest consistent history found: %s ',
+            longest_consistent_history)
+        logger.info(
+            'shortest consistent history found: %s ',
+            shortest_consistent_history)
+        diff_history = OrderedDict()
+        for k in longest_consistent_history.keys():
+            if k not in shortest_consistent_history:
+                diff_history[k] = longest_consistent_history[k]
+        # validating client request from all entries not present on quorum of
+        # repliicas
+        for k, v in diff_history.items():
+            isValid = validate_diff_history_operations(k[0], v[0][1], v[1])
+            if not isValid:
+                logger.debug(
+                    'Diff history operation validation failed for %s.' +
+                    'Choosing a different quorum.',
+                    v[0][1])
+                return (False, False)
+        suffix_for_consistent_histories = compute_suffix(
+            consistent_histories, longest_consistent_history)
+        send_catch_up_to_replicas(suffix_for_consistent_histories)
+        caught_up_msgs = OrderedDict()
+        if await(len(caught_up_msgs) == quorum):
+            logger.debug('caught up message received from quorum replicas')
+            # verify caught up messages
+            replica_with_longest_hist = replicas_object[longest]
+            running_state_hash_of_longest_hist_replica = caught_up_msgs[
+                replica_with_longest_hist][1]
+            # compare cryptographic hashes of running states of replicas in
+            # quorum
+            for k, v in caught_up_msgs.items():
+                if v[1] != running_state_hash_of_longest_hist_replica:
+                    logger.error(
+                        'hash violation found for replica : %s.' +
+                        'Choosing a different quorum. ', k)
+                    return (False, False)
+            status = get_responses_for_clients(
+                caught_up_msgs, replica_with_longest_hist)
+            if status:
+                for r in consistent_histories.keys():
+                    send(('get_init_running_state'), to=r)
+                    logger.info(
+                        'asking replica %s for running state.' +
+                        '\nmessage sent:%s ',
+                        r,
+                        ('get_init_running_state'))
+                    if await(consistent_running_state is not None):
+                        rstate = deepcopy(consistent_running_state)
+                        consistent_running_state = None
+                        if running_state_hash_of_longest_hist_replica == get_hashed_running_state(
+                                rstate):
+                            return (longest_consistent_history, rstate)
+                    elif timeout(2):
+                        logger.debug(
+                            'Consistent running state not received from' +
+                            'replica %s in selected quorum.' +
+                            'Asking another replica.',
+                            r)
+                        continue
+                return (False, False)
+            else:
+                logger.debug(
+                    'valid client responses not obtained from replicas' +
+                    'in selected quorum.Choosing a different quorum.')
+                return (False, False)
+        elif timeout(2):
+            logger.info(
+                'caught up not received within timeout.' +
+                'choosing a different quorum.')
+            return (False, False)
+
+    def receive(msg=('init_running_state', signed_rs), from_=rpl):
+        verified_rs = verify_message_from_replica(signed_rs, rpl)
+        consistent_running_state = verified_rs
+        logger.info('running state received from replica : %s', verified_rs)
+
+    def get_clipped_history(hist, checkpoint_slot_number):
+        temp_hist = OrderedDict()
+        for k, v in hist.items():
+            if v[0][0] > checkpoint_slot_number:
+                temp_hist[k] = v
+        return temp_hist
+
+    def compare_history(history1, history2):
+        shorter_history = history2
+        longer_history = history1
+        i = 0
+        short_hist_keys = shorter_history.keys()
+        for key in short_hist_keys:
+            order_proof1, signed_client_req1 = shorter_history[key]
+            if key in longer_history:
+                order_proof2, signed_client_req2 = longer_history[key]
+                slot_num1 = order_proof1[0]
+                operation1 = order_proof1[1]
+                slot_num2 = order_proof2[0]
+                operation2 = order_proof2[1]
+                if slot_num1 != slot_num2 and operation1 != operation2:
+                    return False
+            else:
+                return False
+        logger.info('histories are consistent, returning true')
+        return True
+
+    def validate_diff_history_operations(
+            client_id, operation, signed_client_request):
+        try:
+            client = clients[client_id]
+            client_verify_key = client_keys[client]
+            verified_request = client_verify_key.verify(signed_client_request)
+            request = pickle.loads(verified_request)
+            if request[3] != operation:
+                return False
+            logger.info(
+                'validated request for operation in diff_history: %s',
+                operation)
+            return True
+        except BaseException:
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            logger.error(
+                'Exception occurred in validation of client request' +
+                'in diff_history clientid: %s, operation: %s \n' +
+                'Type: %s\n Value: %s\n Trace: %s',
+                client_id,
+                operation,
+                exc_type,
+                exc_value,
+                exc_traceback)
+            return False
+
+    def validate_slot_number(hist, checkpoint_slot_number):
+        prev_slot_num = checkpoint_slot_number
+        test = sorted(hist.items(), key=lambda x: int(x[1][0][0]))
+        logger.info(' history sorted on slot numbers: %s ', test)
+        for k, v in sorted(hist.items(), key=lambda x: int(x[1][0][0])):
+            if prev_slot_num is None:
+                prev_slot_num = v[0][0]
+            elif prev_slot_num + 1 != v[0][0]:
+                logger.error(
+                    'Slot number validation failed for replica history.' +
+                    'Inconsistent values are: %s and %s',
+                    prev_slot_num,
+                    v[0][0])
+                return False
+            else:
+                prev_slot_num = v[0][0]
+        logger.debug('Slot numbers validated successfully in replica history')
+        return True
+
+    def process_wedged_statements(wedged_statements):
+        consistent_checkpoint = get_consistent_checkpoint(wedged_statements)
+        logger.debug(
+            'consistent checkpoint proof : %s ',
+            consistent_checkpoint)
+        if consistent_checkpoint:
+            checkpoint_sn = consistent_checkpoint[1][0]
+            last_checkpoint_sn = checkpoint_sn
+        else:
+            checkpoint_sn = last_checkpoint_sn
+        longest_history, running_state = get_init_parameters(
+            wedged_statements, checkpoint_sn)
+        if longest_history == False or running_state == False:
+            return False
+        logger.debug('longest consistent history: %s', longest_history)
+        logger.debug('running state: %s ', running_state)
+        set_up_new_replicas(
+            consistent_checkpoint,
+            longest_history,
+            running_state)
+        return True
+
+    def compute_suffix(consistent_histories, longest_consistent_history):
+        logger.info('collecting operations to be sent in catch up')
+        suffix_hist = OrderedDict()
+        for replica, history in consistent_histories.items():
+            temp_suffix_hist = OrderedDict()
+            for k, v in longest_consistent_history.items():
+                if k not in history:
+                    temp_suffix_hist[k] = v
+            suffix_hist[replica] = temp_suffix_hist
+        return suffix_hist
+
+    def send_catch_up_to_replicas(suffix_for_consistent_histories):
+        for replica, catch_up_hist in suffix_for_consistent_histories.items():
+            signed_catch_up_hist = signing_key.sign(
+                pickle.dumps(catch_up_hist))
+            send(('catch_up', signed_catch_up_hist), to=replica)
+            logger.info(
+                'catch up sent to replica %s : %s ',
+                replica,
+                catch_up_hist)
+
+    def get_responses_for_clients(caught_up_msgs, replica_with_longest_hist):
+        logger.info(
+            'getting the results and result statements' +
+            'for each client last performed operation')
+        resultproof_of_client_op = OrderedDict()
+        invalid_replicas = []
+        caught_up_msg_of_longest_hist_repl = caught_up_msgs[replica_with_longest_hist]
+        for c, rs in caught_up_msg_of_longest_hist_repl[2].items():
+            unpickled_result_stmt = pickle.loads(
+                public_keys[caught_up_msg_of_longest_hist_repl[0]].verify(rs[1]))
+            resultproof_of_client_op[c] = (
+                unpickled_result_stmt[1], rs[0], configuration, [rs[1]])
+        for replica, value in caught_up_msgs.items():
+            if replica != replica_with_longest_hist:
+                for client_id, val in value[2].items():
+                    unpickled_result_stmt = pickle.loads(
+                        public_keys[value[0]].verify(val[1]))
+                    cryptographic_hash_of_res = get_hashed_result(val[0])
+                    if val[0] == resultproof_of_client_op[client_id][1] and cryptographic_hash_of_res == \
+                            unpickled_result_stmt[2]:
+                        resultproof_of_client_op[client_id][3].append(val[1])
+                    else:
+                        logger.error(
+                            'validation failed for result for' +
+                            'client: %s. Marking replica: %s invalid ',
+                            client_id,
+                            replica)
+                        return False
+
+        for client_id, result_proof in resultproof_of_client_op.items():
+            req_id = caught_up_msg_of_longest_hist_repl[2][client_id][2]
+            response = (
+                req_id, (result_proof[1], result_proof), get_replicas_id(
+                    caught_up_msgs.keys()))
+            signed_response = signing_key.sign(pickle.dumps(response))
+            client_responses[client_id] = signed_response
+            logger.info(
+                'saved response to request id: %s of client : %s ',
+                req_id,
+                client_id)
+        logger.info('all replicas in quorum are valid.')
+        return True
+
+    def get_replicas_id(replicas_obj):
+        logger.info('getting replicas id')
+        replicas_id = [
+            k for r in replicas_obj for k,
+            v in configuration.items() if r == v]
+        return replicas_id
+
+    # calculate cryptographic hash of the received result
+    # return: calculated digest
+    def get_hashed_result(result):
+        HASHER = nacl.hash.sha256
+        result_bytes = pickle.dumps(result)
+        digest = HASHER(result_bytes, encoder=nacl.encoding.HexEncoder)
+        result_bytes = pickle.dumps(result)
+        digest = HASHER(result_bytes, encoder=nacl.encoding.HexEncoder)
+        logger.info(
+            'result: %s\n cryptographic hash of the result: %s',
+            result,
+            digest)
+        return digest
+
+    def receive(
+            msg=(
+                'request_reconfiguration',
+                reconfiguration_request),
+            from_=replica):
+        verify_message_from_replica(reconfiguration_request, replica)
+        logger.info('sending signed wedge requests to each replica')
+        reconfigure()
+
+    def reconfigure():
+        if reconfig_in_progress:
+            return
+        reconfig_in_progress = True
+        logger.info('reconfiguring...')
+        global_wedged_statements = OrderedDict()
+        caught_up_msgs = OrderedDict()
+        consistent_running_state = None
+        old_head = None
+        client_responses = OrderedDict()
+        QC = []
+        build_quorum_combinations()
+        for i in range(len(configuration)):
+            signed_wedge_request = signing_key.sign(pickle.dumps('wedge'))
+            send(('wedge', signed_wedge_request),
+                 to=configuration['replica' + str(i)])
+            logger.info('sent wedge request to replica%s ', i)
+        await(len(global_wedged_statements) >= config['t'] + 1)
+        logger.debug('wedged statments received from quorum of replicas')
+        while reconfig_in_progress and QC:
+            selected_quorum = None
+            q_replicas = global_wedged_statements.keys()
+            received_len_replicas = len(q_replicas)
+            for item in QC:
+                wedged_statements = OrderedDict()
+                for r in item:
+                    if list(r)[0] in q_replicas:
+                        wedged_statements[list(
+                            r)[0]] = global_wedged_statements[list(r)[0]]
+                if len(wedged_statements) == quorum:
+                    selected_quorum = item
+                    logger.info(
+                        'processing wedged statements of selected quorum %s',
+                        selected_quorum)
+                    process_wedged_statements(wedged_statements)
+                    break
+            if selected_quorum is not None and reconfig_in_progress:
+                logger.info(
+                    '************************* removing selected' +
+                    'quorum from list QC : %s', QC)
+                QC.remove(selected_quorum)
+                logger.info(
+                    '************************* waiting for third' +
+                    'replica wedge statement')
+                await(len(global_wedged_statements) > received_len_replicas or len(
+                    global_wedged_statements) == num_replicas)
+                logger.info(
+                    '************************* received third' +
+                    'replica wedge statement')
+
+    def receive(msg=('wedged', wedged_statement), from_=replica):
+        wedged_statement_from_replica = verify_message_from_replica(
+            wedged_statement, replica)
+        global_wedged_statements[replica] = wedged_statement_from_replica
+        logger.info(
+            'verified wedged message from' +
+            'replica: %s wedged_statement received: %s ',
+            wedged_statement_from_replica,
+            replica)
+
+    def verify_message_from_replica(message, replica):
+        logger.info('validating message received from replica %s', replica)
+        for i in range(len(configuration)):
+            if replica in configuration['replica' + str(i)]:
+                replica_verify_key = public_keys[i]
+                try:
+                    verified_message = replica_verify_key.verify(message)
+                    unpickled_message = pickle.loads(verified_message)
+                    return unpickled_message
+                except BaseException:
+                    exc_type, exc_value, exc_traceback = sys.exc_info()
+                    logger.error(
+                        'Exception occurred in validation' +
+                        'of message from replica' +
+                        '\nType: %s\n Value: %s\n Trace: %s',
+                        exc_type,
+                        exc_value,
+                        exc_traceback)
+
+    def receive(msg=('caught_up', signed_caught_up_message), from_=replica):
+        unpickled_caught_up_msg = verify_message_from_replica(
+            signed_caught_up_message, replica)
+        caught_up_msgs[replica] = unpickled_caught_up_msg
+        logger.info(
+            'received caught_up message from replica: %s',
+            unpickled_caught_up_msg)
+
+    def receive(
+            msg=(
+                'request_reconfiguration_from_client',
+                signed_proof_of_misbehaviour),
+            from_=client):
+        client_verify_key = client_keys[client]
+        proof_of_misbehaviour = pickle.loads(
+            client_verify_key.verify(signed_proof_of_misbehaviour))
+        logger.debug(
+            'reconfiguration request received from client.' +
+            'Message received: %s',
+            ('request_reconfiguration_from_client',
+             proof_of_misbehaviour))
+        res, res_proof = proof_of_misbehaviour
+        result_statements = res_proof[3]
+        cryptographic_hash_of_result = get_hashed_result(res)
+        for i in range(len(configuration)):
+            result_statement = result_statements[i]
+            replica_verify_key = public_keys[i]
+            logger.info(
+                'validating result statement of replica %s', i)
+            if not validate_result_statement(
+                    cryptographic_hash_of_result,
+                    result_statement,
+                    replica_verify_key,
+                    i):
+                logger.debug(
+                    'proof of misbehaviour from client' +
+                    'verified successfully.' +
+                    'initiating reconfiguration.')
+                reconfigure()
+                return
+
+    # validate the hash of result received with result statements of replica
+    # return: True if valid, False otherwise
+    def validate_result_statement(
+            cryptographic_hash_of_result,
+            result_statement,
+            replica_verify_key,
+            i):
+        logger.info('validating result statement')
+        try:
+            verified_result_statement = replica_verify_key.verify(
+                result_statement)
+            unpickled_result_statement = pickle.loads(
+                verified_result_statement)
+            if cryptographic_hash_of_result != unpickled_result_statement[2]:
+                logger.warning(
+                    'validation failed for  result statement of replica %s', i)
+                return False
+            return True
+        except BaseException:
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            logger.error(
+                'Exception occurred in validating result statement\n Type: %s',
+                exc_type)
+            return False
+
+    def set_up_new_replicas(
+            consistent_checkpoint,
+            longest_history,
+            running_state):
+        old_configuration = configuration
+        old_head = configuration['replica0']
+        replicas = build_replicas(config)
+        start_replicas(replicas)
+        generate_replicas_keys()
+        send_init_to_replicas(
+            replicas,
+            consistent_checkpoint,
+            longest_history,
+            running_state)
+        notify_all_clients()
+        send(('test'), to=old_head)
+        send(('test'), to=configuration['replica0'])
+        exit_old_config_replicas(old_configuration)
+        logger.info('system reinitialized successfully')
+        reconfig_in_progress = False
+        logger.debug(
+            ' flag reconfig_in_progress set to : %s ',
+            reconfig_in_progress)
+
+    def exit_old_config_replicas(old_configuration):
+        for replica in old_configuration.keys():
+            send(('exit_from_run'),
+                 to=old_configuration[replica])
+        logger.info(' sent exit message to all replicas')
+
+    def notify_all_clients():
+        for client_id in client_responses.keys():
+            notification = (
+                configuration,
+                public_keys_bytes,
+                client_responses[client_id])
+            signed_notification = signing_key.sign(pickle.dumps(notification))
+            send(('new_config_response', signed_notification),
+                 to=clients[client_id])
+            logger.info(
+                'sent notification to client. Message sent: %s',
+                notification)
+
+    def receive(msg=('test_resp', val), from_=repl):
+        if old_head == repl:
+            logger.info('t from old_replica %s', val)
+        else:
+            logger.info('t from new_replica %s', val)

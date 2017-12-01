@@ -1,0 +1,588 @@
+# importing required libraries
+import os
+import sys
+import logging
+import time
+import datetime
+import nacl
+import pickle
+import random
+from collections import OrderedDict
+config(channel is {fifo, reliable}, clock is lamport)
+
+# Client process definition
+class Client(process):
+    # initialization to be performed before starting the process
+    def setup(args, olympus, master, client_id):
+        self.timeout = args['client_timeout']
+        self.test123 = False
+        self.operations = args['workload' + '[' + str(client_id) + ']']
+        self.responses = OrderedDict()
+        self.request_id = 0
+        self.pending_operations = OrderedDict()
+        self.olympus = olympus
+        self.master = master
+        self.configuration = OrderedDict()
+        self.prev_configuration = OrderedDict()
+        self.replied = []
+        self.unique_response = OrderedDict()
+        self.handshake = False
+        self.private_key = nacl.signing.SigningKey.generate()
+        self.public_key = self.private_key.verify_key
+        self.replicas_public_key = OrderedDict()
+        self.olympus_public_key = None
+        self.error_flag = False
+        self.client_id = client_id
+        self.quorum = args['t'] + 1
+        self.data = OrderedDict()
+        self.resp_from_olympus = None
+        self.logger = initialize_logger(args['test_case_name'])
+        logger.info('Client setup completed')
+        logger.info(
+            'initial settings: client ID : %s \n workload : %s',
+            client_id,
+            operations)
+        self.pseudorandom_key = 'pseudooperations[' + str(client_id) + ']'
+        if pseudorandom_key in args:
+            self.pseudooperations = args[pseudorandom_key]
+        else:
+            self.pseudooperations = "put('movie','star'); get('movie');append('movie',' wars');put('jedi','luke skywalker'); slice('jedi','0:4'); get('jedi');"
+
+    # create logger for logging into Client<ID>.log file
+    def initialize_logger(test_case_name):
+        # get logger object for client
+        logger = logging.getLogger('Client' + str(client_id))
+        logger.setLevel(logging.DEBUG)  # set log level to DEBUG
+        path = 'Client' + str(client_id) + '-log-' + test_case_name
+        fh = logging.FileHandler(path)
+        fh.setLevel(logging.DEBUG)
+        formatter = logging.Formatter(
+            '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        fh.setFormatter(formatter)
+        logger.addHandler(fh)  # add file handler to logger
+        return logger
+
+    def update_configuration(config, replicas_k):
+        configuration = config
+        replica_id = 0
+        for key in replicas_k:
+            replica_public_key = nacl.signing.VerifyKey(
+                key, encoder=nacl.encoding.HexEncoder)
+            replica = 'replica' + str(replica_id)
+            replicas_public_key[replica] = replica_public_key
+            replica_id += 1
+        logger.info(
+            'configuration updated successfully. new configuration is : %s',
+            configuration)
+
+    # handle message with configuration from olympus
+    def receive(msg=('configuration', config, replicas_k)):
+        logger.info('configuration received from olympus: %s', config)
+        configuration = config
+        replica_id = 0
+        for key in replicas_k:
+            replica_public_key = nacl.signing.VerifyKey(
+                key, encoder=nacl.encoding.HexEncoder)
+            replica = 'replica' + str(replica_id)
+            replicas_public_key[replica] = replica_public_key
+            replica_id += 1
+
+    # handle message with configuration from olympus
+    def receive(msg=('new_config_response', signed_notification)):
+        config, replicas_k, signed_response = pickle.loads(
+            olympus_public_key.verify(signed_notification))
+        logger.info('new configuration received from olympus: %s', config)
+        update_configuration(config, replicas_k)
+        req_id, response, replicas_id = pickle.loads(
+            olympus_public_key.verify(signed_response))
+        if req_id in pending_operations:
+            resp_from_olympus = signed_response
+            logger.info('response received from olympus : %s', signed_response)
+        else:
+            logger.info(
+                'received response from olympus for request id' +
+                ' which is not in pending operations')
+        error_flag = False
+        handshake = True
+
+    # handle error statement from replica. set error flag.
+    def receive(msg=('error',), from_=some_replica):
+        logger.info('error statement received from replica : %s', some_replica)
+        error_flag = True
+
+    # requests for current configuration from olympus
+    def request_config_from_olympus():
+        prev_configuration = configuration
+        configuration = {}
+        send(('request_configuration', self, client_id), to=olympus)
+        logger.info(
+            'requesting configuration from olympus : \n message sent: %s',
+            ('request_configuration',
+             self,
+             client_id))
+        if await(len(configuration) > 0):
+            if not handshake:
+                logger.info(
+                    'handshake not performed. sending public key to olympus.')
+                public_key_hex = public_key.encode(
+                    encoder=nacl.encoding.HexEncoder)
+                send(('client_public_key', client_id, public_key_hex), to=olympus)
+                logger.info(
+                    'sent public key to olympus. \n message sent: %s',
+                    ('client_public_key',
+                     client_id,
+                     self,
+                     public_key_hex))
+                await(handshake)
+                logger.info('handshake completed')
+        elif timeout(timeout):
+            logger.warning(
+                'configuration request timed out. no response from olympus.')
+            request_config_from_olympus()
+
+    # retransmits request to all
+    def resend_request_to_all_replicas(request):
+        request_config_from_olympus()
+        for i in range(len(configuration)):
+            logger.info('retransmitting request to replica %s ', i)
+            send(('request', request), to=configuration['replica' + str(i)])
+            logger.info('message sent: %s', ('request', request))
+
+    # calculate cryptographic hash of the received result
+    # return: calculated digest
+    def get_hashed_result(result):
+        HASHER = nacl.hash.sha256
+        result_bytes = pickle.dumps(result)
+        digest = HASHER(result_bytes, encoder=nacl.encoding.HexEncoder)
+        result_bytes = pickle.dumps(result)
+        digest = HASHER(result_bytes, encoder=nacl.encoding.HexEncoder)
+        logger.info(
+            'received result : %s \ncrptpgraphic hash of the result: %s',
+            result,
+            digest)
+        return digest
+
+    # validate the hash of result received with result statements of replica
+    # return: True if valid, False otherwise
+    def validate_result_statement(
+            cryptographic_hash_of_result,
+            result_statement,
+            replica_verify_key,
+            i):
+        try:
+            verified_result_statement = replica_verify_key.verify(
+                result_statement)
+            unpickled_result_statement = pickle.loads(
+                verified_result_statement)
+            if cryptographic_hash_of_result != unpickled_result_statement[2]:
+                logger.warning(
+                    'validation failed for  result statement of replica %s', i)
+                return False
+            return True
+        except BaseException:
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            logger.error(
+                'Exception occurred in validating result statement\n Type: %s',
+                exc_type)
+            return False
+
+    # validates if response received from replica is acceptable
+    # return: result if valid, False otherwise
+    def validate(response_from_replica):
+        count = 0
+        result, result_proof = response_from_replica
+        result_statements = result_proof[3]
+        cryptographic_hash_of_result = get_hashed_result(result)
+        for i in range(len(configuration)):
+            result_statement = result_statements[i]
+            replica_verify_key = replicas_public_key['replica' + str(i)]
+            logger.info(
+                'validating result statement of replica %s', i)
+            if validate_result_statement(
+                    cryptographic_hash_of_result,
+                    result_statement,
+                    replica_verify_key,
+                    i):
+                count += 1
+        if count == len(configuration):
+            return (result, False)
+        if count >= quorum:
+            return (result, True)
+        return (None, True)
+
+    # accepts the received result if reply from replica(/s) is valid
+    def accept_result(id):
+        logger.debug(
+            'checking if received result for request_id %s can be accepted',
+            id)
+        valid_responses = []
+        reconfig_requested = False
+        reconfig_required = False
+        for i in range(len(replied)):
+            result, reconfig_flag = validate(replied[i])
+            if result:
+                if not valid_responses or result == valid_responses[0]:
+                    valid_responses.append(result)
+                    logger.debug(
+                        'valid result received for request_id %s', id)
+            if reconfig_flag:
+                reconfig_required = True
+                proof_of_misbehaviour = replied[i]
+        if len(replied) == 1:  # normal operation.
+            if not len(valid_responses) == 1 or reconfig_required:
+                replied = []
+                unique_response = OrderedDict()
+                logger.warning(
+                    'Replica misbehaviour detected.' +
+                    ' Requesting Olympus for reconfiguration ')
+                signed_proof_of_misbehaviour = private_key.sign(
+                    pickle.dumps(proof_of_misbehaviour))
+                send(('request_reconfiguration_from_client',
+                      signed_proof_of_misbehaviour), to=olympus)
+                logger.debug(
+                    'Message sent: %s',
+                    ('request_reconfiguration_from_client',
+                     proof_of_misbehaviour))
+                return False
+        else:
+            if len(valid_responses) != len(configuration) or reconfig_required:
+                logger.warning('Valid response not received from all replicas')
+                logger.warning(
+                    'Requesting Olympus for reconfiguration')
+                signed_proof_of_misbehaviour = private_key.sign(
+                    pickle.dumps(proof_of_misbehaviour))
+                send(('request_reconfiguration_from_client',
+                      signed_proof_of_misbehaviour), to=olympus)
+                logger.debug(
+                    'Message sent: %s',
+                    ('request_reconfiguration_from_client',
+                     proof_of_misbehaviour))
+            if len(valid_responses) < quorum:
+                logger.warning(
+                    'Valid response not received from quorum of replicas')
+                logger.warning(
+                    'Response not accepted for request id: %s',
+                    quorum)
+                replied = []
+                unique_response = OrderedDict()
+                return False
+        logger.debug(
+            'Accepting result: %s  for request id: %s ',
+            valid_responses[0],
+            id)
+        responses[id] = valid_responses[0]  # accept the response
+        # delete operation from pending operations list
+        del pending_operations[id]
+        logger.info(
+            'deleting the request id %s from pending operations %s',
+            id,
+            pending_operations)
+        replied = []  # reset the list of responses received
+        unique_response = OrderedDict()
+        return True
+
+    # create and sign a request containing request id and operation to be sent
+    def build_signed_request(request_id, operation):
+        logger.info(
+            'building signed request for request id: %s and operation: %s',
+            request_id,
+            operation)
+        request = (client_id, self, request_id, operation)
+        pickled_request = pickle.dumps(request)
+        signed_request = private_key.sign(pickled_request)
+        return signed_request
+
+    # send request to all replicas : retransmission
+    def send_request_to_replicas(request_id, request):
+        logger.info('retransmtting request to all replicas')
+        replied = []
+        unique_response = OrderedDict()
+        resend_request_to_all_replicas(request)
+        if await(len(replied) == len(configuration)):
+            logger.debug('received reply from all replicas')
+            if not accept_result(request_id):
+                return False
+            logger.info(
+                'retransmission successful for request with id: %s',
+                request_id)
+            return True
+        elif resp_from_olympus:
+            if not accept_response_from_olympus(resp_from_olympus):
+                resp_from_olympus = None
+                if not send_request_to_replicas(request_id, request):
+                    handle_error_flag(request_id, request)
+            return True
+        elif timeout(timeout):
+            logger.info('retransmission timed out. retrying retransmission.')
+            if not send_request_to_replicas(request_id, request):
+                return False
+            return True
+        elif error_flag:
+            logger.warning('error statement received')
+            return False
+
+            # returns a set of random operations to be performed
+
+    def get_operations_set():
+        operations = pseudooperations
+        operations = operations.split(';')
+        valid_operations = []
+        for i in range(len(operations)):
+            operation = operations[i].strip()
+            if len(operation):
+                valid_operations.append(operation)
+        return valid_operations
+
+    # returns a list of randomly selected operations to be performed
+    def generate_random_operations(seed, sequences_count):
+        random.seed(seed)
+        operations_set = get_operations_set()
+        sequence_list = []
+        for _ in range(sequences_count):
+            sequence_list.append(random.randint(0, len(operations_set) - 1))
+        operations = []
+        for index in sequence_list:
+            operations.append(operations_set[index])
+        logger.info('random operations generated: %s', operations)
+        return operations
+
+    # returns a list of valid operations inferred from the operations
+    # specified in the initial configuration
+    def get_operations():
+        operations = operations.split(';')
+        valid_operations = []
+        for i in range(len(operations)):
+            operation = operations[i].strip()
+            if len(operation):
+                valid_operations.append(operation)
+        operations = valid_operations
+        if 'pseudorandom' in valid_operations[0]:
+            operation = valid_operations[0]
+            operation = operation.split(',')
+            seed = operation[0][13:]
+            sequences_count = int(operation[1][: -1])
+            valid_operations = generate_random_operations(
+                seed, sequences_count)
+        logger.info('valid operations : %s', valid_operations)
+        return valid_operations
+
+    # perform the specified operation on local data dictionary
+    def perform_operation(operation):
+        result = None
+        val = None
+        op = operation.split("'")
+        key = op[1]
+        if 'put' in operation:
+            value = op[3]
+            data[op[1]] = op[3]
+            val = 'OK'
+        elif 'get' in operation:
+            if key in data:
+                val = data[key]
+            else:
+                val = ''
+        elif 'slice' in operation:
+            slice = op[3].split(':')
+            start_index = int(slice[0])
+            end_index = int(slice[1])
+            if key in data:
+                value = data[key]
+                if start_index < end_index and end_index <= len(value):
+                    data[key] = value[start_index: end_index]
+                    val = 'OK'
+                else:
+                    val = 'fail'
+            else:
+                val = 'fail'
+        elif 'append' in operation:
+            value = op[3]
+            if key in data:
+                data[key] += value
+                val = 'OK'
+            else:
+                val = 'fail'
+        result = (val,)
+        logger.debug(
+            'data: %s operation: %s result: %s ',
+            data,
+            operation,
+            val)
+
+    # runs the client process
+    def run():
+        operations = get_operations()  # get valid operations to perform
+        for operation in operations:
+            # perform operation on local data dictionary
+            perform_operation(operation)
+            # build a signed request for the operation
+            request = build_signed_request(request_id, operation)
+            send_request(request, operation, request_id)
+            # increment request id for next request to be sent (if any)
+            output('completed request: ', request_id)
+            request_id += 1
+        logger.info('all operations executed. sending DONE message to olympus')
+        send(('done'), to=olympus)
+        logger.info('Message sent: %s', ('done'))
+        send(('client_final_state', client_id, data), to=master)
+        logger.info('Final state of the client: %s', data)
+        await(test123)
+
+    def send_request(request, operation, request_id):
+        request_config_from_olympus()  # check for update in configuration
+        head = configuration['replica0']  # get the head of replica chain
+        send(('request', request), to=head)
+        logger.info(
+            'request with request id %s sent to head:',
+            request_id)
+        # add the operation to be performed to list of pending operations
+        pending_operations[request_id] = operation
+        replied = []
+        unique_response = OrderedDict()
+        if await(len(replied) == 1):
+            # if case of error, return and halt further processing
+            if not accept_result(
+                    request_id):
+                logger.warning(
+                    'Response not accepted: request id %s operation: %s.' +
+                    ' Setting error flag to True.',
+                    request_id,
+                    operation)
+                error_flag = True
+                handle_error_flag(request_id, request)
+        elif resp_from_olympus:
+            if not accept_response_from_olympus(resp_from_olympus):
+                logger.info('response from olympus not accepted')
+                resp_from_olympus = None
+                logger.info(
+                    'Configuration change detected.' +
+                    ' Sending request to HEAD of new Configuration')
+                send_request(request, operation, request_id)
+        # retransmit request to all replicas in case of timeout
+        elif timeout(timeout):
+            logger.warning(
+                'request timed out for request id %s operation: %s',
+                request_id,
+                operation)
+            if not send_request_to_replicas(request_id, request):
+                handle_error_flag(request_id, request)
+        elif error_flag:  # request reconfiguration if error flag is set
+            handle_error_flag(request_id, request)
+
+    def handle_error_flag(req_id, request):
+        send(('request_configuration', self, client_id), to=olympus)
+        logger.info(
+            'requesting configuration. \n Message sent: %s',
+            ('request_configuration',
+             self,
+             client_id))
+        await(error_flag == False)
+        if await(resp_from_olympus):
+            accept_response_from_olympus(resp_from_olympus)
+            resp_from_olympus = None
+            if req_id in pending_operations:
+                logger.debug(
+                    'req_id in pending operations.' +
+                    ' sending request to head of new configuration')
+                # request_config_from_olympus()
+                # get the head of replica chain
+                head = configuration['replica0']
+                send(('request', request), to=head)
+                if await(len(replied) == 1):
+                    # if case of error, return and halt further processing
+                    if not accept_result(
+                            req_id):
+                        logger.warning(
+                            'Response not accepted: request id %s ',
+                            req_id)
+                        error_flag = True
+                        handle_error_flag(req_id, request)
+                        # retransmit request to all replicas in case of timeout
+                elif timeout(timeout):
+                    logger.warning(
+                        'request timed out for request id %s',
+                        req_id)
+                    if not send_request_to_replicas(req_id, request):
+                        handle_error_flag(req_id, request)
+                    elif error_flag:
+                        handle_error_flag(req_id, request)
+        elif timeout(timeout):
+            handle_error_flag(req_id, request)
+
+    # handler for receiving response from replicas: append the response
+    # received to the list of replies
+    def receive(msg=('response', id, response), from_=replica):
+        logger.info(
+            'response received for request id: %s from: %s \nresponse: %s ',
+            id,
+            replica,
+            response
+        )
+        if replica not in unique_response:
+            unique_response[replica] = response
+            replied.append(response)
+        else:
+            if response != unique_response[replica]:
+                replied.remove(unique_response[replica])
+                unique_response[replica] = response
+                replied.append(response)
+
+    # handler for receiving public keys of replicas in the configuration
+    def receive(
+            msg=(
+                'public_key_received',
+                replicas_key_hex,
+                olympus_key_hex),
+            from_=olympus):
+        replica_id = 0
+        olympus_public_key = nacl.signing.VerifyKey(
+            olympus_key_hex, encoder=nacl.encoding.HexEncoder)
+        for key in replicas_key_hex:
+            replica_public_key = nacl.signing.VerifyKey(
+                key, encoder=nacl.encoding.HexEncoder)
+            replica = 'replica' + str(replica_id)
+            replicas_public_key[replica] = replica_public_key
+            replica_id += 1
+        logger.info(
+            'public keys received for %s replicas in current configuration',
+            len(replicas_key_hex))
+        handshake = True
+
+    def accept_response_from_olympus(signed_response):
+        req_id, response, replicas_id = pickle.loads(
+            olympus_public_key.verify(signed_response))
+        logger.info(
+            'pending operations are %s %s ',
+            pending_operations,
+            req_id not in pending_operations)
+        if req_id not in pending_operations:
+            logger.info(
+                'received response from olympus for request id' +
+                ' which is not in pending operations')
+            return False
+        logger.info(
+            'response received from olympus for request id: %s',
+            req_id)
+        res, r_proof = response
+        r_stmts = r_proof[3]
+        cryptographic_hash_of_res = get_hashed_result(res)
+        for i in range(len(replicas_id)):
+            result_statement = r_stmts[i]
+            replica_verify_key = replicas_public_key['replica' + str(
+                replicas_id[i])]
+            logger.info(
+                'validating result statement of replica %s', i)
+            if not validate_result_statement(
+                    cryptographic_hash_of_res,
+                    result_statement,
+                    replica_verify_key,
+                    i):
+                return False
+        logger.debug(
+            'Accepting result: %s  for request id: %s ',
+            res,
+            req_id)
+        responses[req_id] = res  # accept the response
+        # delete operation from pending operations list
+        del pending_operations[req_id]
+        resp_from_olympus = None
+        return True

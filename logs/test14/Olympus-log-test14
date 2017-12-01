@@ -1,0 +1,57 @@
+2017-11-22 15:49:14,826 - Olympus - INFO - Olympus setup completed
+2017-11-22 15:49:14,826 - Olympus - INFO - initial settings:
+ num of replicas: 3 
+ num of clients: 1
+2017-11-22 15:49:14,826 - Olympus - INFO -  building head replica
+2017-11-22 15:49:15,111 - Olympus - INFO -  building replica 1
+2017-11-22 15:49:15,380 - Olympus - INFO -  building tail replica
+2017-11-22 15:49:15,643 - Olympus - INFO - starting replica 0
+2017-11-22 15:49:15,643 - Olympus - INFO - starting replica 1
+2017-11-22 15:49:15,643 - Olympus - INFO - starting replica 2
+2017-11-22 15:49:15,643 - Olympus - INFO - generating keys for all replicas
+2017-11-22 15:49:15,659 - Olympus - INFO - initial configuration settings sent to 3 replicas
+2017-11-22 15:49:15,675 - Olympus - INFO - configuration sent: OrderedDict([('replica0', {<Replica:e0002#ReplicaNode0>}), ('replica1', {<Replica:40002#ReplicaNode1>}), ('replica2', {<Replica:2f002#ReplicaNode2>})])
+2017-11-22 15:49:15,675 - Olympus - INFO - system initialization successful
+2017-11-22 15:49:16,846 - Olympus - INFO - received client request for configuration from client with ID : 0
+2017-11-22 15:49:16,846 - Olympus - INFO - Total replicas in configuration: 3
+2017-11-22 15:49:16,846 - Olympus - INFO - configuration sent to client: 
+ configuration: OrderedDict([('replica0', {<Replica:e0002#ReplicaNode0>}), ('replica1', {<Replica:40002#ReplicaNode1>}), ('replica2', {<Replica:2f002#ReplicaNode2>})])
+2017-11-22 15:49:16,861 - Olympus - INFO -  received public key of client : <Client:a3002#ClientNode0>
+2017-11-22 15:49:16,861 - Olympus - INFO - sending client public key to all replicas
+2017-11-22 15:49:16,861 - Olympus - INFO -  sent client public key to all replicas
+2017-11-22 15:49:16,861 - Olympus - INFO - sending acknowledgement to client on receipt of it public key
+2017-11-22 15:49:16,930 - Olympus - INFO - received client request for configuration from client with ID : 0
+2017-11-22 15:49:16,930 - Olympus - INFO - Total replicas in configuration: 3
+2017-11-22 15:49:16,930 - Olympus - INFO - configuration sent to client: 
+ configuration: OrderedDict([('replica0', {<Replica:e0002#ReplicaNode0>}), ('replica1', {<Replica:40002#ReplicaNode1>}), ('replica2', {<Replica:2f002#ReplicaNode2>})])
+2017-11-22 15:49:16,977 - Olympus - INFO - received client request for configuration from client with ID : 0
+2017-11-22 15:49:16,977 - Olympus - INFO - Total replicas in configuration: 3
+2017-11-22 15:49:16,977 - Olympus - INFO - configuration sent to client: 
+ configuration: OrderedDict([('replica0', {<Replica:e0002#ReplicaNode0>}), ('replica1', {<Replica:40002#ReplicaNode1>}), ('replica2', {<Replica:2f002#ReplicaNode2>})])
+2017-11-22 15:49:21,996 - Olympus - INFO - received client request for configuration from client with ID : 0
+2017-11-22 15:49:21,996 - Olympus - INFO - Total replicas in configuration: 3
+2017-11-22 15:49:21,996 - Olympus - INFO - configuration sent to client: 
+ configuration: OrderedDict([('replica0', {<Replica:e0002#ReplicaNode0>}), ('replica1', {<Replica:40002#ReplicaNode1>}), ('replica2', {<Replica:2f002#ReplicaNode2>})])
+2017-11-22 15:49:27,005 - Olympus - INFO - received client request for configuration from client with ID : 0
+2017-11-22 15:49:27,005 - Olympus - INFO - Total replicas in configuration: 3
+2017-11-22 15:49:27,005 - Olympus - INFO - configuration sent to client: 
+ configuration: OrderedDict([('replica0', {<Replica:e0002#ReplicaNode0>}), ('replica1', {<Replica:40002#ReplicaNode1>}), ('replica2', {<Replica:2f002#ReplicaNode2>})])
+2017-11-22 15:49:27,085 - Olympus - INFO - received client request for configuration from client with ID : 0
+2017-11-22 15:49:27,085 - Olympus - INFO - Total replicas in configuration: 3
+2017-11-22 15:49:27,085 - Olympus - INFO - configuration sent to client: 
+ configuration: OrderedDict([('replica0', {<Replica:e0002#ReplicaNode0>}), ('replica1', {<Replica:40002#ReplicaNode1>}), ('replica2', {<Replica:2f002#ReplicaNode2>})])
+2017-11-22 15:49:27,138 - Olympus - INFO - received client request for configuration from client with ID : 0
+2017-11-22 15:49:27,138 - Olympus - INFO - Total replicas in configuration: 3
+2017-11-22 15:49:27,138 - Olympus - INFO - configuration sent to client: 
+ configuration: OrderedDict([('replica0', {<Replica:e0002#ReplicaNode0>}), ('replica1', {<Replica:40002#ReplicaNode1>}), ('replica2', {<Replica:2f002#ReplicaNode2>})])
+2017-11-22 15:49:27,185 - Olympus - INFO - client :  <Client:a3002#ClientNode0> done sending messages. Crrent done_count: 1
+2017-11-22 15:49:27,185 - Olympus - INFO - received DONE: all clients finished sending messages.
+2017-11-22 15:49:27,185 - Olympus - INFO - sent DONE to replica0 
+2017-11-22 15:49:27,201 - Olympus - INFO - sent DONE to replica1 
+2017-11-22 15:49:27,201 - Olympus - INFO - sent DONE to replica2 
+2017-11-22 15:49:27,201 - Olympus - INFO - received final state of replica 1
+2017-11-22 15:49:27,201 - Olympus - INFO - received final state of replica 2
+2017-11-22 15:49:27,201 - Olympus - INFO - received final state of replica 0
+2017-11-22 15:49:27,201 - Olympus - INFO - received Replicas Final State.
+2017-11-22 15:49:27,201 - Olympus - INFO - sent Replica Final States to Master
+2017-11-22 15:49:27,201 - Olympus - INFO -  Olympus terminating

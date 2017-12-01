@@ -1,0 +1,48 @@
+# replica 2 drops completed_checkpoint(0) and crashes on completed_checkpoint(0).
+# consequently, during reconfig, quorum contains some replicas that have dropped
+# history before checkpoints, and some replicas that have not.
+# scott stoller, 2017-11-26
+
+# EXPECTED BEHAVIOR
+
+#clients 0 to 4 each send one request.  clients 0,1 also send a second request.
+#head sleeps briefly upon receiving requests from clients 0,1.  this ensures that
+#other replicas have time to send their request 0 before client 0 or 1 sends
+#its request 1.  thus, request 0 from every client is processed by head
+#before request 1 from any client.  furthermore, checkpoint activity triggered by
+#request 0 from any client completes before processing of request 1 from any client.
+
+#config0 processes request 0 from at least 4 clients and sends result.
+#head initiates two checkpoints.
+#replica 2 drops completed_checkpoint(0) and crashes on completed_checkpoint(1).
+#the crash leads to reconfiguration.
+#tail drops wedge_request.  thus, quorum must contain replicas 0,1 (which have
+#not dropped any prefix of their history) and replica 3 (which has dropped history
+#before checkpoint 2).
+#olympus may send results for some requests; exactly which may depend on timing.
+#config1 should send results for remaining requests.  clients eventually receive
+#results for all requests.
+
+test_case_name = completed_checkpt_fail
+t = 2
+num_client = 5
+
+# timeouts, in milliseconds.  you may change them.
+head_timeout = 3000
+nonhead_timeout = 3000
+
+# checkpoint interval.
+checkpt_interval = 2
+
+# CLIENT WORKLOAD
+workload[0] = put('c0','0'); append('c0','1')
+workload[1] = put('c1','0'); append('c1','1')
+workload[2] = put('c2','0')
+workload[3] = put('c3','0')
+workload[4] = put('c4','0')
+
+# FAILURE SCENARIO
+# failures[c,r] is the failure scenario for replica r in configuration c.
+failures[0,0] = client_request(0,0),sleep(300); client_request(1,0),sleep(300); client_request(0,1),sleep(300); client_request(1,1),sleep(300)
+failures[0,2] = completed_checkpoint(0),drop(); completed_checkpoint(1),crash()
+failures[0,4] = wedge_request(0),drop()

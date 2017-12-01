@@ -1,0 +1,493 @@
+Each test case provides the following information:
+(1) brief description of the scenario
+(2) the name of the configuration file used to run the test case
+(3) other information (if any) needed to run the test case, including the commands(s) used to run it (or the name of a shell script containing those commands) and any requirements such as that certain files should contain certain content, 
+(4) the name of the log file produced by running the test case
+(5) Validations in log files
+(6) the outcome (pass or fail), with a brief explanation of the problem in case of failure.
+
+--------------------------------------------------------------------------------------------------------------------
+
+Test case 1
+
+(1)Description: Perform put, get, and append operations using 1 client and 3 replicas. Checkpoint should be initiated after Head receives result shuttles for third and sixth client request. 
+
+(2) Name of configuration file used to run the test case: config1.txt
+
+(3) script used to run: test1.bat
+
+(4) the name of the log file produced by running the test case: Master-log-test1, Olympus-log-test1.log, Client0-log-test1.log, Replica0-log-test1.log, Replica1-log-test1.log, Replica2-log-test1.log
+
+(5) In all the replica log files check for history deletion after third and sixth client request processed.
+
+(6) Outcome: Pass
+
+--------------------------------------------------------------------------------------------------------------------
+
+Test case 2
+
+(1)Description: Perform put, get, and append operations using 2 clients and 3 replicas. Change operation action should be performed by replica1 when result shuttle seventh request is received by it. Reconfiguration should take place when the tail detects this change operation.
+
+(2) Name of configuration file used to run the test case: config2.txt
+
+(3) script used to run: test2.bat
+
+(4) the name of the log file produced by running the test case: Master-log-test2.log, Olympus-log-test2.log, Client0-log-test2.log, Client1-log-test2.log, Replica0-log-test2.log, Replica1-log-test2.log, Replica2-log-test2.log
+
+(5) Check for change operation log in replica1 log file and reconfiguration request log in replica2 log file. Reconfiguration logs in Olympus log file and client request processing should be resumed after reconfiguration.
+
+(6) Outcome: Pass
+
+--------------------------------------------------------------------------------------------------------------------
+
+Test case 3
+
+(1)Description: Perform put, get, and append operations using 1 client and 3 replicas. Crash one of the replicas and reconfiguration should take place.
+
+(2) Name of configuration file used to run the test case: config3.txt
+
+(3) script used to run: test3.bat
+
+(4) the name of the log file produced by running the test case: Master-log-test3.log, Olympus-log-test3.log, Client0-log-test3.log, Replica0-log-test3.log, Replica1-log-test3.log, Replica2-log-test3.log
+
+(5) Check for crash log in replica1 log files and reconfiguration log in any of the other replicas log files. Reconfiguration logs in Olympus log files and client request processing should be resumed after reconfiguration.
+
+(6) Outcome: Pass
+
+--------------------------------------------------------------------------------------------------------------------
+
+Test case 4
+
+(1)Description: Perform put, get, and append operations using 2 clients and 3 replicas. Head double increments slot number when it receives result shuttle for fourth operation.
+
+(2) Name of configuration file used to run the test case: config4.txt
+
+(3) script used to run: test4.bat
+
+(4) the name of the log file produced by running the test case: Master-log-test4.log, Olympus-log-test4.log, Client0-log-test4.log, Client1-log-test4.log, Replica0-log-test4.log, Replica1-log-test4.log, Replica2-log-test4.log
+
+(5) Check for increment slot injection log in head log file when it receives result shuttle for fourth request. Reconfiguration request log should be present in replica1 log file. Reconfiguration logs in Olympus log files and client request processing should be resumed after reconfiguration.
+
+(6) Outcome: Pass
+
+--------------------------------------------------------------------------------------------------------------------
+
+Test case 5
+
+(1)Description: Perform put, get, and append operations using 1 client and 5 replicas. Tail should sleep for 5 seconds when it receives shuttle for fourth request.
+
+(2) Name of configuration file used to run the test case: config5.txt
+
+(3) script used to run: test5.bat
+
+(4) the name of the log file produced by running the test case: Master-log-test5.log, Olympus-log-test5.log, Client0-log-test5.log, Replica0-log-test5.log, Replica1-log-test5.log, Replica2-log-test5.log, Replica3-log-test5.log, Replica4-log-test5.log
+
+(5) Check for sleep injection log in tail log file. Then check for retransmission log for fourth request in client log files. Response is received and other requests processing resumes without any interruptions.
+
+(6) Outcome: Pass
+
+--------------------------------------------------------------------------------------------------------------------
+
+Test case 6
+
+(1)Description: Perform put, get, and append operations using 1 client and 3 replicas. Replica1 should change operation and Replica2 should detect this and request for reconfiguration. Running state should be received from only Replica2.
+
+(2) Name of configuration file used to run the test case: config6.txt
+
+(3) script used to run: test6.bat
+
+(4) the name of the log file produced by running the test case: Master-log-test6.log, Olympus-log-test6.log, Client0-log-test6.log, Replica0-log-test6.log, Replica1-log-test6.log, Replica2-log-test6.log
+
+(5) check for change operation log in replica1 log files. Reconfiguration request log in replica2. Dropping running state request logs in replica0 and replica1. Reconfiguration logs in Olympus log files and client request processing should be resumed after reconfiguration.
+
+(6) Outcome: Pass
+
+--------------------------------------------------------------------------------------------------------------------
+
+Test case 7
+
+(1)Description: Perform put, get, and append operations using 1 client and 3 replicas. Replica0 should drop the third request and replica1 should drop result shuttle of the third request in retransmission.
+
+(2) Name of configuration file used to run the test case: config7.txt
+
+(3) script used to run: test7.bat
+
+(4) the name of the log file produced by running the test case: Master-log-test7.log, Olympus-log-test7.log, Client0-log-test7.log, Replica0-log-test7.log, Replica1-log-test7.log, Replica2-log-test7.log
+
+(5) check for drop request log in replica0 log file an drop result shuttle log in replica1 log file. Reconfiguration logs in Olympus log files and client request processing should be resumed after reconfiguration.
+
+(6) Outcome: Pass
+
+--------------------------------------------------------------------------------------------------------------------
+
+Test case 8
+
+(1)Description: Perform put, get, and append operations using 1 client and 3 replicas. checkpoint shuttle is dropped by the tail and change operation is performed by replica1.
+
+(2) Name of configuration file used to run the test case: config8.txt
+
+(3) script used to run: test8.bat
+
+(4) the name of the log file produced by running the test case: Master-log-test8.log, Olympus-log-test8.log, Client0-log-test8.log, Replica0-log-test8.log, Replica1-log-test8.log, Replica2-log-test8.log
+
+(5) Check for drop checkpoint shuttle log in replica2 log files. Check for change operation log in replica1 log file. Reconfiguration request log in replica2 log file. Reconfiguration logs in Olympus log files and client request processing should be resumed after reconfiguration. All the requests are included in reconfiguration as checkpoint shuttle is incomplete.
+
+(6) Outcome: Pass
+
+--------------------------------------------------------------------------------------------------------------------
+
+Test case 9
+
+(1)Description: Perform put, get, and append operations using 1 client and 3 replicas. completed checkpoint shuttle is dropped by the head and change operation is performed by replica1.
+
+(2) Name of configuration file used to run the test case: config9.txt
+
+(3) script used to run: test9.bat
+
+(4) the name of the log file produced by running the test case: Master-log-test9.log, Olympus-log-test9.log, Client0-log-test9.log, Replica0-log-test9.log, Replica1-log-test9.log, Replica2-log-test9.log
+
+(5) Check for drop completed checkpoint shuttle log in replica0 log files. Check for change operation log in replica1 log file. Reconfiguration request log in replica2 log file. Reconfiguration logs in Olympus log files and client request processing should be resumed after reconfiguration. Though head did not delete the history, the init history would still have truncated history as the checkpoint shuttle is signed by every replica and is considered complete.
+
+(6) Outcome: Pass
+
+--------------------------------------------------------------------------------------------------------------------
+
+Test case 10
+
+(1)Description: Perform put, get, and append operations using 1 client and 3 replicas. Invalid order signature is injected by replica1. 
+
+(2) Name of configuration file used to run the test case: config10.txt
+
+(3) script used to run: test10.bat
+
+(4) the name of the log file produced by running the test case: Master-log-test10.log, Olympus-log-test10.log, Client0-log-test10.log, Replica0-log-test10.log, Replica1-log-test10.log, Replica2-log-test10.log
+
+(5) Check for invalid signature log in replica1, and detection and reconfiguration logs in replica2 log files. Reconfiguration logs in Olympus log files and client request processing should be resumed after reconfiguration.
+
+(6) Outcome: Pass
+
+--------------------------------------------------------------------------------------------------------------------
+
+Test case 11
+
+(1)Description: Perform put, get, and append operations using 1 client and 3 replicas. Replica1 drops first t + 1 checkpoint statements.
+
+(2) Name of configuration file used to run the test case: config11.txt
+
+(3) script used to run: test11.bat
+
+(4) the name of the log file produced by running the test case: Master-log-test11.log, Olympus-log-test11.log, Client0-log-test11.log, Replica0-log-test11.log, Replica1-log-test11.log, Replica2-log-test11.log
+
+(5) Check for dropping check checkpoint statements log in replica1 log file, and detection and reconfiguration request log in replica0 log files. Reconfiguration logs in Olympus log files and client request processing should be resumed after reconfiguration.
+
+(6) Outcome: Pass
+
+--------------------------------------------------------------------------------------------------------------------
+
+Test case 12
+
+(1)Description: Injection of faults:
+	failures[0,1] = checkpoint(1),invalid_result_sig();
+	failures[1,2] = shuttle(0,1),invalid_result_sig();
+
+	Replica 1 puts an invalid signature on its result statement for the next outgoing shuttle for client request.
+	Replica 2 detects this and asks for reconfiguration.
+	Olympus reconfigures the system from configuration-0 to configuration-1.
+	In configuration-1, Replica 2 injects a fault by putting an invalid signature on its resut statement in the response sent to client.
+	Client detects this misbehaviour and reports to Olympus.
+	Olympus verifies proof misbehaviour and reconfgiures the system again.
+
+(2) Name of configuration file used to run the test case: config12.txt
+
+(3) script used to run: test12.bat
+
+(4) the name of the log file produced by running the test case: Master-log-test12, Olympus-log-test12.log, Client0-log-test12.log, Replica0-log-test12.log, Replica1-log-test12.log, Replica2-log-test12.log
+
+(5) Validation:
+	
+	Check for 2 reconfiguration initiations in Olympus log file
+	Check for FAULT INJECTION INVALID RESULT SIG in Replica 1 and Replica 2 log files.
+	Check for proof of misbehaviour in Client log file
+	
+(6) Outcome: Pass
+
+--------------------------------------------------------------------------------------------------------------------
+Test case 13
+
+(1)Description: Injection of faults:
+	failures[0,1] = checkpoint(1),invalid_result_sig();
+	failures[1,2] = shuttle(0,1),invalid_result_sig();
+
+	Replica 1 puts an invalid signature on its result statement for the next outgoing shuttle for client request.
+	Replica 2 detects this and asks for reconfiguration.
+	Olympus reconfigures the system from configuration-0 to configuration-1.
+	In configuration-1, Replica 2 injects a fault by putting an invalid signature on its resut statement in the response sent to client.
+	Client detects this misbehaviour and reports to Olympus.
+	Olympus verifies proof misbehaviour and reconfgiures the system again.
+
+(2) Name of configuration file used to run the test case: config12.txt
+
+(3) script used to run: test12.bat
+
+(4) the name of the log file produced by running the test case: Master-log-test12, Olympus-log-test12.log, Client0-log-test12.log, Replica0-log-test14.log, Replica1-log-test14.log, Replica2-log-test14.log
+
+(5) Validation:
+	
+	Check for 2 reconfiguration initiations in Olympus log file
+	Check for FAULT INJECTION INVALID RESULT SIG in Replica 1 and Replica 2 log files.
+	Check for proof of misbehaviour in Client log file
+	
+(6) Outcome: Pass
+
+
+--------------------------------------------------------------------------------------------------------------------
+Test case 14
+
+(1)Description: Injection of faults:
+	failures[0,0] = client_request(0,2),drop();client_request(0,3),drop();forwarded_request(0,1),drop();
+
+	Head replica (Replica 0), drops the second request of client.
+	Client retransmits to all replicas.
+	Head drops the retransmitted request from client.
+	Head drops the 1st forwarded request it receives from a replica for client 0.
+	Head processes the second forwarded request it receives from another replica for the client 0, as a new request.
+	This time all replicas respond to client.
+
+(2) Name of configuration file used to run the test case: config14.txt
+
+(3) script used to run: test14.bat
+
+(4) the name of the log file produced by running the test case: Master-log-test14, Olympus-log-test14.log, Client0-log-test14.log, Replica0-log-test14.log, Replica1-log-test14.log, Replica2-log-test14.log
+
+(5) Validation:
+	
+	Check for 'dropping the client request' in Replica 0 log file.
+	Check for 'dropping the forwarded client request' in Replica 0 log file.
+	Check for retransmission of request id 2 in client log file.
+		
+(6) Outcome: Pass
+
+--------------------------------------------------------------------------------------------------------------------
+Test case 15
+
+(1)Description: Injection of faults:
+	failures[0,1] = shuttle(0,0),change_operation();catch_up(0),extra_op();
+	
+	Replica 1 changes the operation in request shuttle for client 0, request 0.
+	Replica 2 detects this and asks Olympus for reconfiguration
+	Olympus sends wedge requests to all replicas
+	Olympus receives wedged messages from all replicas but checks for quorum of replicas.
+	( In this test case, Replicas 0 and 1 are chosen first)
+	Olympus sends a catch up message to Replica 0 and 1.
+	Replica 1 performs an extra operation of put(a,a) and calculates hash of running state with the extra operation performed.
+	Olympus finds hash of running states of replicas 0 and 1 are inconsistent.
+	Olympus chooses a different quorum (Here, replica 0 and replica 2)
+	Reconfiguration succeeds
+	
+(2) Name of configuration file used to run the test case: config15.txt
+
+(3) script used to run: test15.bat
+
+(4) the name of the log file produced by running the test case: Master-log-test15, Olympus-log-test15.log, Client0-log-test15.log, Replica0-log-test15.log, Replica1-log-test15.log, Replica2-log-test15.log
+
+(5) Validation:
+	Check for 'FAULT INJECTION: CHANGING OPERATION' in Replica 1 log file
+	Check for 'hash violation found for replica' in Olympus log file
+	Check for 'selected quorum' to be Replica 0 and Replica 2
+	Check for 'all replicas in quorum are valid' in Olympus log
+			
+(6) Outcome: Pass
+
+
+--------------------------------------------------------------------------------------------------------------------
+Test case 16
+
+(1)Description: Injection of faults:
+		failures[0,1] = shuttle(0,0),change_operation();catch_up(0),drop();
+		
+		Replica 1 changes the operation in request shuttle for client 0 
+		Replica 2 detects this and asks Olympus for reconfiguration
+		Olympus sends wedge requests to all replicas
+		Olympus receives wedged messages from all replicas but checks for quorum of replicas.
+		(In this test case, Replicas 0 and 1 are chosen first)
+		Olympus sends a catch up message to Replica 0 and 1.
+		Replica 1 drops this messages.
+		Olympus times out and selects a different quorum.
+		This time Replica 0 and 2 are chosen.
+		Reconfiguration succeeds.
+		
+(2) Name of configuration file used to run the test case: config16.txt
+
+(3) script used to run: test16.bat
+
+(4) the name of the log file produced by running the test case: Master-log-test16, Olympus-log-test16.log, Client0-log-test16.log, Replica0-log-test16.log, Replica1-log-test16.log, Replica2-log-test16.log
+
+(5) Validation:
+	
+	Check for 'FAULT INJECTION: CHANGING OPERATION' in Replica 1 log file.
+	Check for reconfiguration request sent to Olympus in Replica 2 log file.
+	Check for 'caught up not received within timeout. choosing a different quorum.' in Olympus log file.
+	
+(6) Outcome: Pass
+
+--------------------------------------------------------------------------------------------------------------------
+Test case 17
+
+(1)Description: Injection of faults:
+		failures[0,0] = client_request(0,0),increment_slot();wedge_request(0),sleep(1000)
+		
+(2) Name of configuration file used to run the test case: config17.txt
+
+(3) script used to run: test17.bat
+
+(4) the name of the log file produced by running the test case: Master-log-test17, Olympus-log-test17.log, Client0-log-test17.log, Replica0-log-test17.log, Replica1-log-test17.log, Replica2-log-test17.log
+
+(5) Validation:
+	
+	Check for 'FAULT INJECTION: INCREMENTING SLOT NUMBER' in Replica 0 log file.
+	Check for 'Slot number validation failed. requesting reconfiguration' in Replica 1 log file
+	Check for 'trigger: wedge_request(0) for failure: Sleep for 1000 seconds' in Replica 0 log file.
+	Check for selected quorum to be Replica 1 and Replica 2 in Olympus log file.
+	
+	
+(6) Outcome: Pass
+
+--------------------------------------------------------------------------------------------------------------------
+Test case 18
+
+(1)Description: Injection of faults:
+		
+		
+(2) Name of configuration file used to run the test case: config18.txt
+
+(3) script used to run: test18.bat
+
+(4) the name of the log file produced by running the test case: Master-log-test18, Olympus-log-test18.log, Client0-log-test18.log, Replica0-log-test18.log, Replica1-log-test18.log, Replica2-log-test18.log
+
+(5) Validation:
+	
+	
+	
+	
+(6) Outcome: Pass
+
+--------------------------------------------------------------------------------------------------------------------
+Test case 19
+
+(1)Description: Injection of faults:
+		failures[0,1] = shuttle(0,2),truncate_history(3);shuttle(0,3),change_operation();
+		
+		Replica 1 changes operation for client 0, request 3.
+		Replica 2 detects this and asks Olympus for reconfiguration
+		Olympus sends Wedge requests to all replicas.
+		Replica 1 replies with a wedged message which contains truncated history.
+		Olympus selects Replica 0 and 1 initially as quorum and sends catch up message.
+		The running state hash in caught up message for replica 1 does not match that of replica 0.
+		Olympus selects a different quorum (Replica 0 and Replica 2).
+		Reconfiguration succeeds.
+		
+(2) Name of configuration file used to run the test case: config19.txt
+
+(3) script used to run: test19.bat
+
+(4) the name of the log file produced by running the test case: Master-log-test19, Olympus-log-test19.log, Client0-log-test19.log, Replica0-log-test19.log, Replica1-log-test19.log, Replica2-log-test19.log
+
+(5) Validation:
+	
+		Check for 'FAULT INJECTION: TRUNCATE HISTORY' in Replica 1 log file.
+		Check for 'FAULT INJECTION: CHANGING OPERATION' in Replica 1 log file.
+		Check for 'Order statement validation failed. requesting reconfiguration' in Replica 2 log file.
+		Check for 'length of history for replica' for replica 1 in Olympus llog file.
+			
+(6) Outcome: Pass
+
+--------------------------------------------------------------------------------------------------------------------
+Test case 20
+
+(1)Description: Injection of faults:
+		failures[0,1] = shuttle(0,2),change_operation();
+		failures[1,0] = new_configuration(0),drop();
+		
+		Replica 1 changes operation for client 0 request 2.
+		Replica 2 detects this and asks Olympus for reconfigurtion.
+		Olympus reconfigures and sends new_configuration to all new replicas.
+		Replica 0 in new configuration drops the new_configuration sent by olympus.
+		Olympus informs client of the configuration change along with replying to the request id 2 of the client.
+		Client sends the request with id 3 to new configuration.
+		Replica 0 still being in PENDING mode, does not process client's request.
+		Client times out, retransmits request with id 3.
+		All replicas forward it to replica 0 but dont receive a response since it is still in PENDING mode.
+		One replica times out and asks for Olympus for reconfiguration.
+		Olympus reconfigures again and this time all replicas accept the new_configuration.
+		Client's request now receive responses from the new configuration.
+		
+(2) Name of configuration file used to run the test case: config20.txt
+
+(3) script used to run: test20.bat
+
+(4) the name of the log file produced by running the test case: Master-log-test20, Olympus-log-test20.log, Client0-log-test20.log, Replica0-log-test20.log, Replica1-log-test20.log, Replica2-log-test20.log
+
+(5) Validation:
+		
+		Check for 'FAULT INJECTION: CHANGING OPERATION' in replica 1.
+		Check for 'droppping init setup message' in replica 0 log file
+		Check for 'reconfiguring' in Olympus log file.
+			
+(6) Outcome: Pass
+
+
+--------------------------------------------------------------------------------------------------------------------
+Test case 21
+
+(1)Description: Injection of faults:
+		failures[0,1] = shuttle(0,1),change_result();
+		
+		Replica 1 of Configuration 0, on receiving 2nd result shuttle of 1st client, will change the operation in the next outgoing request shuttle.
+		
+(2) Name of configuration file used to run the test case: config21.txt
+
+(3) script used to run: test21.bat
+
+(4) the name of the log file produced by running the test case: Master-log-test21, Olympus-log-test21.log, Client0-log-test21.log, Replica0-log-test21.log, Replica1-log-test21.log, Replica2-log-test21.log
+
+(5) Validation:
+		Check for 'FAULT INJECTION: CHANGING OPERATION' in Replica 1 log file
+		Check for request for reconfiguration in Replica 2 log file  
+		Check for reconfiguration in Olympus
+		
+			
+(6) Outcome: Pass
+
+--------------------------------------------------------------------------------------------------------------------
+Test case 22
+
+(1)Description: Injection of faults:
+		failures[0,1] = shuttle(0,1),drop_result_stmt();
+		
+		Replica 1 drops result statement of head from the outgoing result_shuttle.
+		Replica 0 detects this and asks olympus for reconfiguration.
+		
+(2) Name of configuration file used to run the test case: config21.txt
+
+(3) script used to run: test22.bat
+
+(4) the name of the log file produced by running the test case: Master-log-test22, Olympus-log-test22.log, Client0-log-test22.log, Replica0-log-test22.log, Replica1-log-test22.log, Replica2-log-test22.log
+
+(5) Validation:
+		Check for 'FAULT INJECTION DROP RESULT STMT' in replica 1 log file.
+		Check for request for reconfiguration in replica 0 log file.
+					
+(6) Outcome: Pass
+
+------------------------------------------------------------------------------------------------------------------------
+
+PERFORMANCE EVALUATION
+
+raft2.da : 12.74 seconds
+BCR multihost: 132.09 seconds
+BCR: single host: 34.177 seconds
+
+
+
+
+

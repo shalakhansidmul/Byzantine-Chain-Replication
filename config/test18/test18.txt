@@ -1,0 +1,19 @@
+python -m da  --message-buffer-size 1000000 -n MasterNode --hostname 172.24.225.236 --peer 172.24.225.124 master.da config18.txt
+		
+	To start client:
+		python -m da --message-buffer-size 1000000 -n ClientNode0 --hostname 172.24.225.236 -D client.da
+		
+To start Replicas 3 and 4 on host 2:
+		python -m da --message-buffer-size 1000000 -n ReplicaNode3 --hostname 172.24.225.236 --peer 172.24.225.124 -D replica.da
+
+		python -m da --message-buffer-size 1000000 -n ReplicaNode4 --hostname 172.24.225.236 --peer 172.24.225.124 -D replica.da
+
+To start Olympus:
+		python -m da --message-buffer-size 1000000 -n OlympusNode --hostname 172.24.225.124 --peer 172.24.225.236 -D olympus.da
+		
+To start Replicas 0, 1, and 2 on host 1:
+		python -m da --message-buffer-size 1000000 -n ReplicaNode0 --hostname 172.24.225.124 -D replica.da
+
+		python -m da --message-buffer-size 1000000 -n ReplicaNode1 --hostname 172.24.225.124 -D replica.da
+
+		python -m da --message-buffer-size 1000000 -n ReplicaNode2 --hostname 172.24.225.124 -D replica.da

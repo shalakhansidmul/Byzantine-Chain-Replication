@@ -1,0 +1,14 @@
+2017-11-22 20:18:49,136 - Master_logger - INFO - building master
+2017-11-22 20:18:49,448 - Master - INFO - Master setup completed
+2017-11-22 20:18:49,449 - Master_logger - INFO - starting master
+2017-11-22 20:18:49,450 - Master_logger - INFO - building olympus
+2017-11-22 20:18:56,789 - Master_logger - INFO - starting olympus
+2017-11-22 20:18:56,791 - Master_logger - INFO - building client : 0
+2017-11-22 20:18:58,916 - Master_logger - INFO - starting client : 0
+2017-11-22 20:19:01,904 - Master - INFO - received client0 final state: OrderedDict([('movie', 'star wars')])
+2017-11-22 20:19:01,971 - Master - INFO - received all replicas final state: OrderedDict([(1, OrderedDict([('movie', 'star wars')])), (0, OrderedDict([('movie', 'star wars')])), (2, OrderedDict([('movie', 'star wars')]))])
+2017-11-22 20:19:01,971 - Master - INFO - comparing all replicas final state of data dictionary
+2017-11-22 20:19:01,972 - Master - INFO - all replicas have same final state of data dictionary
+2017-11-22 20:19:01,972 - Master - INFO - replicas final state OrderedDict([(1, OrderedDict([('movie', 'star wars')])), (0, OrderedDict([('movie', 'star wars')])), (2, OrderedDict([('movie', 'star wars')]))]) 
+2017-11-22 20:19:01,972 - Master - INFO - client final state {0: OrderedDict([('movie', 'star wars')])} 
+2017-11-22 20:19:01,972 - Master - INFO - test case PASSED

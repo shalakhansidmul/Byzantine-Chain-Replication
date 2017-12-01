@@ -1,0 +1,41 @@
+# system takes two checkpoints.  
+# system reconfigures after replica 3 drops shuttle.
+# head performs extra_op before reconfig and is not included in quorum.
+# scott stoller, 2017-11-26
+
+# NOTATION
+# request rij: j'th request expected to be successfully processed by config i
+
+# EXPECTED BEHAVIOR
+
+#client sends requests r00,r01,r02,r03,r04 to config0 and receives results.
+#system should checkpoint after r01 and after r03.
+#client sends request r05 to config0.
+#head performs extra_op.  replica 3 drops shuttle for r05.
+#system reconfigures. 
+#successful quorum for reconfig must not contain head, because of extra_op.
+#(this might not be detected until after catch_up and get_running_state.)
+#quorum must contain replica 3 or 4 (or both).  olympus sends catch-up
+#message containing r05 to whichever of them are in the quorum.
+#olympus sends result for r05 (because majority of replicas correctly processed it).
+
+#client sends r20 and r21 to config1 and receives results.
+
+test_case_name = extra_op_drop_shuttle
+t = 2
+num_client = 1
+
+# timeouts, in milliseconds.  you may change them.
+head_timeout = 3000
+nonhead_timeout = 3000
+
+# checkpoint interval.
+checkpt_interval = 2
+
+# CLIENT WORKLOAD
+workload[0] = put('k','r00'); append('k','r01'); append('k','r02'); append('k','r03'); append('k','r04'); append('k','r05'); append('k','r20'); append('k','r21'); get('k')
+
+# FAILURE SCENARIO
+# failures[c,r] is the failure scenario for replica r in configuration c.
+failures[0,0] = client_request(0,5),extra_op()
+failures[0,3] = client_request(0,5),drop()

@@ -1,0 +1,9 @@
+2017-11-22 18:02:34,235 - Master_logger - INFO - building master
+2017-11-22 18:02:34,508 - Master - INFO - Master setup completed
+2017-11-22 18:02:34,509 - Master_logger - INFO - starting master
+2017-11-22 18:02:34,510 - Master_logger - INFO - building olympus
+2017-11-22 18:02:34,938 - Master_logger - INFO - starting olympus
+2017-11-22 18:02:34,981 - Master_logger - INFO - building client : 0
+2017-11-22 18:03:03,064 - Master_logger - INFO - starting client : 0
+2017-11-22 18:04:02,762 - Master - INFO - received client0 final state: OrderedDict([('movie', 'mission impossible ghost protocol'), ('kunal', 'kapoor'), ('scott1', 'stoller1')])
+2017-11-22 18:04:02,790 - Master - INFO - received all replicas final state: OrderedDict([(1, OrderedDict([('movie', 'mission impossible ghost protocol'), ('kunal', 'kapoor'), ('scott1', 'stoller1')])), (2, OrderedDict([('movie', 'mission impossible ghost protocol'), ('kunal', 'kapoor'), ('scott1', 'stoller1')])), (3, OrderedDict([('movie', 'mission impossible ghost protocol'), ('kunal', 'kapoor'), ('scott1', 'stoller1')])), (4, OrderedDict([('movie', 'mission impossible ghost protocol'), ('kunal', 'kapoor'), ('scott1', 'stoller1')])), (0, OrderedDict([('movie', 'mission impossible ghost protocol'), ('kunal', 'kapoor'), ('scott1', 'stoller1')]))])

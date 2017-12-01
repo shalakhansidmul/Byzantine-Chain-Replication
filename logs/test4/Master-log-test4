@@ -1,0 +1,12 @@
+2017-11-22 16:25:05,172 - Master_logger - INFO - building master
+2017-11-22 16:25:05,516 - Master - INFO - Master setup completed
+2017-11-22 16:25:05,517 - Master_logger - INFO - starting master
+2017-11-22 16:25:05,518 - Master_logger - INFO - building olympus
+2017-11-22 16:25:12,833 - Master_logger - INFO - starting olympus
+2017-11-22 16:25:12,835 - Master_logger - INFO - building client : 0
+2017-11-22 16:25:15,062 - Master_logger - INFO - starting client : 0
+2017-11-22 16:25:15,064 - Master_logger - INFO - building client : 1
+2017-11-22 16:25:15,563 - Master_logger - INFO - starting client : 1
+2017-11-22 16:25:16,575 - Master - INFO - received client1 final state: OrderedDict([('movie', 'mission impossible'), ('kunal', 'wadhwa wadhwa')])
+2017-11-22 16:25:18,376 - Master - INFO - received all replicas final state: OrderedDict([(1, OrderedDict([('movie', 'mission impossible'), ('jedi', 'luke warm'), ('kunal', 'wadhwa wadhwa')])), (2, OrderedDict([('movie', 'mission impossible'), ('jedi', 'luke warm'), ('kunal', 'wadhwa wadhwa')])), (0, OrderedDict([('movie', 'mission impossible'), ('jedi', 'luke warm'), ('kunal', 'wadhwa wadhwa')]))])
+2017-11-22 16:25:18,379 - Master - INFO - received client0 final state: OrderedDict([('movie', 'star wars'), ('jedi', 'luke warm')])

@@ -1,0 +1,44 @@
+# system reconfigures due to increment_slot failure and reconfigures again
+# due to invalid_order_sig failure.
+# scott stoller, 2017-11-26
+
+# !!!! INSTRUCTIONS !!!!
+#if message counters are propagated (not reset) across configs, update last line
+#of scenario as described in the comments immediately above it.
+
+# NOTATION
+# request rij: j'th request expected to be successfully processed by config i
+
+# EXPECTED BEHAVIOR
+#client sends request r00 to config0 and receives result.
+#client sends request r10 to config0.  head has increment_slot failure.
+#system reconfigures.
+#head's history has a hole, so head should not be included in quorum,
+#so olympus does not send result for r10.
+#
+#client re-sends r10 to config1 and receives result.
+#clients sends request r11 to config1 and receives result.
+#clients sends request r12 to config1.
+#on receipt of shuttle for r12, replica 3 has invalid_order_sig failure.
+#system reconfigures.
+#olympus sends result for r12 (because majority of replicas correctly processed r12) 
+#
+#clients sends requests r20 and r21 to config2 and receives results.
+
+test_case_name = increment_slot_invalid_order_sig
+t = 2
+num_client = 1
+# you may change the timeouts.
+head_timeout = 3000
+nonhead_timeout = 3000
+checkpt_interval = 10
+
+# CLIENT WORKLOAD
+workload[0] = put('k','r00'); append('k','r10'); append('k','r11'); append('k','r12'); append('k','r20'); append('k','r21'); get('k')
+
+# FAILURE SCENARIO
+# failures[c,r] is the failure scenario for replica r in configuration c.
+failures[0,0] = client_request(0,1),increment_slot()
+#if message counters are propagated across configs, change msg# in trigger
+#as needed (e.g., to 4) so this failure occurs on receipt of shuttle for r12.
+failures[1,3] = shuttle(0,2),invalid_order_sig()

@@ -1,0 +1,43 @@
+# system reconfigures due to crash of replica 0. the replica chosen to 
+# provide running state crashes upon receiving get_running_state.
+# olympus chooses a new quorum containing the remaining replicas.
+# scott stoller, 2017-11-26
+
+# !!!!! INSTRUCTIONS !!!!!
+#run this to see which replica, say replica i, receives get_running_state.
+#if i!=1, change failures[0,1] on last line to failures[0,i].
+
+# NOTATION
+# request rij: j'th request expected to be successfully processed by config i
+
+# EXPECTED BEHAVIOR
+
+#client sends requests r00,r01 to config0 and receives results.
+#client sends request r20 to config0.  head crashes upon receiving it.
+#system reconfigures. 
+#olympus chooses quorum containing replica i and asks replica i for running state.
+#replica i crashes.
+#olympus chooses new quorum containing remaining 3 replicas (other than head and i).
+
+#client re-sends r20 to config1 and receives result.
+#client sends r21 to config1 and receives result.
+
+test_case_name = get_running_state_crash
+t = 2
+num_client = 1
+
+# timeouts, in milliseconds.  you may change them.
+head_timeout = 3
+nonhead_timeout = 3
+client_timeout = 5
+# checkpoint interval.
+checkpt_interval = 9
+
+# CLIENT WORKLOAD
+workload[0] = put('k','r00'); append('k','r01'); append('k','r20'); append('k','r21'); get('k')
+
+# FAILURE SCENARIO
+# failures[c,r] is the failure scenario for replica r in configuration c.
+failures[0,0] = client_request(0,2),crash()
+# !!!!! UPDATE THIS APPROPRIATELY (see instructions above) !!!!
+failures[0,1] = get_running_state(0),crash()

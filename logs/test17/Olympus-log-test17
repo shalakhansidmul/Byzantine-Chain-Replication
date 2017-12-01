@@ -1,0 +1,136 @@
+2017-11-22 16:27:20,912 - Olympus - INFO - Olympus setup completed
+2017-11-22 16:27:20,913 - Olympus - INFO - initial settings:
+ num of replicas: 3 
+ num of clients: 1
+2017-11-22 16:27:20,916 - Olympus - INFO -  building head replica
+2017-11-22 16:27:21,190 - Olympus - INFO -  building replica 1
+2017-11-22 16:27:21,451 - Olympus - INFO -  building tail replica
+2017-11-22 16:27:21,684 - Olympus - INFO - starting replica 0
+2017-11-22 16:27:21,685 - Olympus - INFO - starting replica 1
+2017-11-22 16:27:21,687 - Olympus - INFO - starting replica 2
+2017-11-22 16:27:21,689 - Olympus - INFO - generating keys for all replicas
+2017-11-22 16:27:21,694 - Olympus - INFO - initial configuration settings sent to 3 replicas
+2017-11-22 16:27:21,694 - Olympus - INFO - configuration sent: OrderedDict([('replica0', {<Replica:c3002#ReplicaNode0>}), ('replica1', {<Replica:e4002#ReplicaNode1>}), ('replica2', {<Replica:30002#ReplicaNode2>})])
+2017-11-22 16:27:21,695 - Olympus - INFO - system initialization successful
+2017-11-22 16:27:22,859 - Olympus - INFO - received client request for configuration from client with ID : 0
+2017-11-22 16:27:22,859 - Olympus - INFO - Total replicas in configuration: 3
+2017-11-22 16:27:22,859 - Olympus - INFO - configuration sent to client: 
+ configuration: OrderedDict([('replica0', {<Replica:c3002#ReplicaNode0>}), ('replica1', {<Replica:e4002#ReplicaNode1>}), ('replica2', {<Replica:30002#ReplicaNode2>})])
+2017-11-22 16:27:22,862 - Olympus - INFO -  received public key of client : <Client:df002#ClientNode0>
+2017-11-22 16:27:22,862 - Olympus - INFO - sending client public key to all replicas
+2017-11-22 16:27:22,864 - Olympus - INFO -  sent client public key to all replicas
+2017-11-22 16:27:22,864 - Olympus - INFO - sending acknowledgement to client on receipt of it public key
+2017-11-22 16:27:22,882 - Olympus - INFO - validating message received from replica <Replica:e4002#ReplicaNode1>
+2017-11-22 16:27:22,885 - Olympus - INFO - sending signed wedge requests to each replica
+2017-11-22 16:27:22,885 - Olympus - INFO - reconfiguring...
+2017-11-22 16:27:22,885 - Olympus - INFO - built all quorum combinations of replicas [({<Replica:c3002#ReplicaNode0>}, {<Replica:e4002#ReplicaNode1>}), ({<Replica:c3002#ReplicaNode0>}, {<Replica:30002#ReplicaNode2>}), ({<Replica:e4002#ReplicaNode1>}, {<Replica:30002#ReplicaNode2>})]
+2017-11-22 16:27:22,886 - Olympus - INFO - sent wedge request to replica0 
+2017-11-22 16:27:22,888 - Olympus - INFO - sent wedge request to replica1 
+2017-11-22 16:27:22,889 - Olympus - INFO - sent wedge request to replica2 
+2017-11-22 16:27:22,895 - Olympus - INFO - validating message received from replica <Replica:e4002#ReplicaNode1>
+2017-11-22 16:27:22,898 - Olympus - INFO - verified wedged message from replica: (None, None, OrderedDict()) wedged_statement received: <Replica:e4002#ReplicaNode1> 
+2017-11-22 16:27:22,898 - Olympus - INFO - validating message received from replica <Replica:30002#ReplicaNode2>
+2017-11-22 16:27:22,901 - Olympus - INFO - verified wedged message from replica: (None, None, OrderedDict()) wedged_statement received: <Replica:30002#ReplicaNode2> 
+2017-11-22 16:27:22,901 - Olympus - DEBUG - wedged statments received from quorum of replicas
+2017-11-22 16:27:22,901 - Olympus - INFO - processing wedged statements of selected quorum ({<Replica:e4002#ReplicaNode1>}, {<Replica:30002#ReplicaNode2>})
+2017-11-22 16:27:22,901 - Olympus - INFO - validating checkpoint in wedged statement
+2017-11-22 16:27:22,901 - Olympus - INFO - validating checkpoint in wedged statement
+2017-11-22 16:27:22,902 - Olympus - DEBUG - consistent checkpoint proof : None 
+2017-11-22 16:27:22,902 - Olympus - INFO - getting init parameters for replicas
+2017-11-22 16:27:22,902 - Olympus - INFO - getting history for slot numbers greater than consistent checkpoint slot number for replica: <Replica:e4002#ReplicaNode1>
+2017-11-22 16:27:22,902 - Olympus - INFO - getting history for slot numbers greater than consistent checkpoint slot number for replica: <Replica:30002#ReplicaNode2>
+2017-11-22 16:27:22,902 - Olympus - INFO -  history sorted on slot numbers: [] 
+2017-11-22 16:27:22,902 - Olympus - DEBUG - Slot numbers validated successfully in replica history
+2017-11-22 16:27:22,902 - Olympus - INFO -  history sorted on slot numbers: [] 
+2017-11-22 16:27:22,902 - Olympus - DEBUG - Slot numbers validated successfully in replica history
+2017-11-22 16:27:22,902 - Olympus - INFO - length of history for replica : <Replica:e4002#ReplicaNode1> is 0 
+2017-11-22 16:27:22,903 - Olympus - INFO - length of history for replica : <Replica:30002#ReplicaNode2> is 0 
+2017-11-22 16:27:22,903 - Olympus - INFO - histories are consistent, returning true
+2017-11-22 16:27:22,903 - Olympus - DEBUG - history of replica <Replica:30002#ReplicaNode2> consistent with replica <Replica:e4002#ReplicaNode1>
+2017-11-22 16:27:22,903 - Olympus - INFO - longest consistent history found: OrderedDict() 
+2017-11-22 16:27:22,903 - Olympus - INFO - shortest consistent history found: OrderedDict() 
+2017-11-22 16:27:22,903 - Olympus - INFO - collecting operations to be sent in catch up
+2017-11-22 16:27:22,904 - Olympus - INFO - catch up sent to replica <Replica:e4002#ReplicaNode1> : OrderedDict() 
+2017-11-22 16:27:22,906 - Olympus - INFO - catch up sent to replica <Replica:30002#ReplicaNode2> : OrderedDict() 
+2017-11-22 16:27:22,915 - Olympus - INFO - validating message received from replica <Replica:e4002#ReplicaNode1>
+2017-11-22 16:27:22,918 - Olympus - INFO - received caught_up message from replica: (1, b'f611ec29f43ccc880c064a38431ea2cbd37d76de9a10b1cfe97da3eb366d90aa', OrderedDict())
+2017-11-22 16:27:22,919 - Olympus - INFO - validating message received from replica <Replica:30002#ReplicaNode2>
+2017-11-22 16:27:22,922 - Olympus - INFO - received caught_up message from replica: (2, b'f611ec29f43ccc880c064a38431ea2cbd37d76de9a10b1cfe97da3eb366d90aa', OrderedDict())
+2017-11-22 16:27:22,922 - Olympus - DEBUG - caught up message received from quorum replicas
+2017-11-22 16:27:22,922 - Olympus - INFO - getting the results and result statements for each client last performed operation
+2017-11-22 16:27:22,922 - Olympus - INFO - all replicas in quorum are valid.
+2017-11-22 16:27:22,923 - Olympus - INFO - asking replica <Replica:e4002#ReplicaNode1> for running state. 
+message sent:get_init_running_state 
+2017-11-22 16:27:22,926 - Olympus - INFO - validating message received from replica <Replica:e4002#ReplicaNode1>
+2017-11-22 16:27:22,929 - Olympus - INFO - running state received from replica : OrderedDict()
+2017-11-22 16:27:22,929 - Olympus - INFO - generating hash of the running state
+2017-11-22 16:27:22,929 - Olympus - DEBUG - longest consistent history: OrderedDict()
+2017-11-22 16:27:22,929 - Olympus - DEBUG - running state: OrderedDict() 
+2017-11-22 16:27:22,930 - Olympus - INFO -  building head replica
+2017-11-22 16:27:23,157 - Olympus - INFO -  building replica 1
+2017-11-22 16:27:23,384 - Olympus - INFO -  building tail replica
+2017-11-22 16:27:23,634 - Olympus - INFO - starting replica 0
+2017-11-22 16:27:23,635 - Olympus - INFO - starting replica 1
+2017-11-22 16:27:23,637 - Olympus - INFO - starting replica 2
+2017-11-22 16:27:23,639 - Olympus - INFO - generating keys for all replicas
+2017-11-22 16:27:23,644 - Olympus - INFO - initial configuration settings sent to 3 replicas
+2017-11-22 16:27:23,644 - Olympus - INFO - configuration sent: OrderedDict([('replica0', {<Replica:c3003#ReplicaNode0>}), ('replica1', {<Replica:e4003#ReplicaNode1>}), ('replica2', {<Replica:30003#ReplicaNode2>})])
+2017-11-22 16:27:23,647 - Olympus - INFO -  sent exit message to all replicas
+2017-11-22 16:27:23,648 - Olympus - INFO - system reinitialized successfully
+2017-11-22 16:27:23,648 - Olympus - DEBUG -  flag reconfig_in_progress set to : False 
+2017-11-22 16:27:23,648 - Olympus - DEBUG -  flag reconfig_in_progress set to : False 
+2017-11-22 16:27:23,652 - Olympus - INFO - t from new_replica True
+2017-11-22 16:27:23,901 - Olympus - INFO - validating message received from replica <Replica:c3002#ReplicaNode0>
+2017-11-22 16:27:23,901 - Olympus - INFO - verified wedged message from replica: None wedged_statement received: <Replica:c3002#ReplicaNode0> 
+2017-11-22 16:27:23,907 - Olympus - INFO - t from new_replica False
+2017-11-22 16:27:27,868 - Olympus - INFO - received client request for configuration from client with ID : 0
+2017-11-22 16:27:27,868 - Olympus - INFO - Total replicas in configuration: 3
+2017-11-22 16:27:27,869 - Olympus - INFO - configuration sent to client: 
+ configuration: OrderedDict([('replica0', {<Replica:c3003#ReplicaNode0>}), ('replica1', {<Replica:e4003#ReplicaNode1>}), ('replica2', {<Replica:30003#ReplicaNode2>})])
+2017-11-22 16:27:27,984 - Olympus - INFO - received client request for configuration from client with ID : 0
+2017-11-22 16:27:27,984 - Olympus - INFO - Total replicas in configuration: 3
+2017-11-22 16:27:27,985 - Olympus - INFO - configuration sent to client: 
+ configuration: OrderedDict([('replica0', {<Replica:c3003#ReplicaNode0>}), ('replica1', {<Replica:e4003#ReplicaNode1>}), ('replica2', {<Replica:30003#ReplicaNode2>})])
+2017-11-22 16:27:28,051 - Olympus - INFO - received client request for configuration from client with ID : 0
+2017-11-22 16:27:28,052 - Olympus - INFO - Total replicas in configuration: 3
+2017-11-22 16:27:28,052 - Olympus - INFO - configuration sent to client: 
+ configuration: OrderedDict([('replica0', {<Replica:c3003#ReplicaNode0>}), ('replica1', {<Replica:e4003#ReplicaNode1>}), ('replica2', {<Replica:30003#ReplicaNode2>})])
+2017-11-22 16:27:28,122 - Olympus - INFO - received client request for configuration from client with ID : 0
+2017-11-22 16:27:28,123 - Olympus - INFO - Total replicas in configuration: 3
+2017-11-22 16:27:28,124 - Olympus - INFO - configuration sent to client: 
+ configuration: OrderedDict([('replica0', {<Replica:c3003#ReplicaNode0>}), ('replica1', {<Replica:e4003#ReplicaNode1>}), ('replica2', {<Replica:30003#ReplicaNode2>})])
+2017-11-22 16:27:28,205 - Olympus - INFO - received client request for configuration from client with ID : 0
+2017-11-22 16:27:28,205 - Olympus - INFO - Total replicas in configuration: 3
+2017-11-22 16:27:28,206 - Olympus - INFO - configuration sent to client: 
+ configuration: OrderedDict([('replica0', {<Replica:c3003#ReplicaNode0>}), ('replica1', {<Replica:e4003#ReplicaNode1>}), ('replica2', {<Replica:30003#ReplicaNode2>})])
+2017-11-22 16:27:28,274 - Olympus - INFO - received client request for configuration from client with ID : 0
+2017-11-22 16:27:28,274 - Olympus - INFO - Total replicas in configuration: 3
+2017-11-22 16:27:28,275 - Olympus - INFO - configuration sent to client: 
+ configuration: OrderedDict([('replica0', {<Replica:c3003#ReplicaNode0>}), ('replica1', {<Replica:e4003#ReplicaNode1>}), ('replica2', {<Replica:30003#ReplicaNode2>})])
+2017-11-22 16:27:28,345 - Olympus - INFO - received client request for configuration from client with ID : 0
+2017-11-22 16:27:28,345 - Olympus - INFO - Total replicas in configuration: 3
+2017-11-22 16:27:28,346 - Olympus - INFO - configuration sent to client: 
+ configuration: OrderedDict([('replica0', {<Replica:c3003#ReplicaNode0>}), ('replica1', {<Replica:e4003#ReplicaNode1>}), ('replica2', {<Replica:30003#ReplicaNode2>})])
+2017-11-22 16:27:28,431 - Olympus - INFO - received client request for configuration from client with ID : 0
+2017-11-22 16:27:28,432 - Olympus - INFO - Total replicas in configuration: 3
+2017-11-22 16:27:28,432 - Olympus - INFO - configuration sent to client: 
+ configuration: OrderedDict([('replica0', {<Replica:c3003#ReplicaNode0>}), ('replica1', {<Replica:e4003#ReplicaNode1>}), ('replica2', {<Replica:30003#ReplicaNode2>})])
+2017-11-22 16:27:28,506 - Olympus - INFO - received client request for configuration from client with ID : 0
+2017-11-22 16:27:28,506 - Olympus - INFO - Total replicas in configuration: 3
+2017-11-22 16:27:28,507 - Olympus - INFO - configuration sent to client: 
+ configuration: OrderedDict([('replica0', {<Replica:c3003#ReplicaNode0>}), ('replica1', {<Replica:e4003#ReplicaNode1>}), ('replica2', {<Replica:30003#ReplicaNode2>})])
+2017-11-22 16:27:28,568 - Olympus - INFO - received client request for configuration from client with ID : 0
+2017-11-22 16:27:28,568 - Olympus - INFO - Total replicas in configuration: 3
+2017-11-22 16:27:28,569 - Olympus - INFO - configuration sent to client: 
+ configuration: OrderedDict([('replica0', {<Replica:c3003#ReplicaNode0>}), ('replica1', {<Replica:e4003#ReplicaNode1>}), ('replica2', {<Replica:30003#ReplicaNode2>})])
+2017-11-22 16:27:28,639 - Olympus - INFO - client :  <Client:df002#ClientNode0> done sending messages. Crrent done_count: 1
+2017-11-22 16:27:28,639 - Olympus - INFO - received DONE: all clients finished sending messages.
+2017-11-22 16:27:28,640 - Olympus - INFO - sent DONE to replica0 
+2017-11-22 16:27:28,641 - Olympus - INFO - sent DONE to replica1 
+2017-11-22 16:27:28,642 - Olympus - INFO - sent DONE to replica2 
+2017-11-22 16:27:28,645 - Olympus - INFO - received final state of replica 1
+2017-11-22 16:27:28,646 - Olympus - INFO - received final state of replica 2
+2017-11-22 16:27:28,653 - Olympus - INFO - received final state of replica 0
+2017-11-22 16:27:28,654 - Olympus - INFO - received Replicas Final State.
+2017-11-22 16:27:28,654 - Olympus - INFO - sent Replica Final States to Master
+2017-11-22 16:27:28,655 - Olympus - INFO -  Olympus terminating

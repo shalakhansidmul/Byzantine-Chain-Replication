@@ -1,0 +1,21 @@
+2017-11-22 15:52:33,943 - Master_logger - INFO - building master
+2017-11-22 15:52:34,347 - Master - INFO - Master setup completed
+2017-11-22 15:52:34,349 - Master_logger - INFO - starting master
+2017-11-22 15:52:34,350 - Master_logger - INFO - building olympus
+2017-11-22 15:52:41,908 - Master_logger - INFO - starting olympus
+2017-11-22 15:52:41,910 - Master_logger - INFO - building client : 0
+2017-11-22 15:52:43,922 - Master_logger - INFO - starting client : 0
+2017-11-22 15:52:43,924 - Master_logger - INFO - building client : 1
+2017-11-22 15:52:46,065 - Master_logger - INFO - starting client : 1
+2017-11-22 15:54:16,296 - Master_logger - INFO - building master
+2017-11-22 15:54:16,794 - Master - INFO - Master setup completed
+2017-11-22 15:54:16,796 - Master_logger - INFO - starting master
+2017-11-22 15:54:16,798 - Master_logger - INFO - building olympus
+2017-11-22 15:54:23,869 - Master_logger - INFO - starting olympus
+2017-11-22 15:54:23,870 - Master_logger - INFO - building client : 0
+2017-11-22 15:54:25,907 - Master_logger - INFO - starting client : 0
+2017-11-22 15:54:25,908 - Master_logger - INFO - building client : 1
+2017-11-22 15:54:27,057 - Master - INFO - received client0 final state: OrderedDict([('movie', 'mission impossible ghost protocol'), ('kunal', 'kapoor'), ('scott1', 'stoller1')])
+2017-11-22 15:54:28,120 - Master_logger - INFO - starting client : 1
+2017-11-22 15:54:28,359 - Master - INFO - received client1 final state: OrderedDict([('movie', 'star wars warm'), ('jedi', 'luke'), ('scott', 'stoller')])
+2017-11-22 15:54:28,385 - Master - INFO - received all replicas final state: OrderedDict([(1, OrderedDict([('movie', 'star wars warm'), ('kunal', 'kapoor'), ('scott1', 'stoller1'), ('jedi', 'luke'), ('scott', 'stoller')])), (0, OrderedDict([('movie', 'star wars warm'), ('kunal', 'kapoor'), ('scott1', 'stoller1'), ('jedi', 'luke'), ('scott', 'stoller')])), (2, OrderedDict([('movie', 'star wars warm'), ('kunal', 'kapoor'), ('scott1', 'stoller1'), ('jedi', 'luke'), ('scott', 'stoller')]))])

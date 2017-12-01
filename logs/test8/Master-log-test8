@@ -1,0 +1,27 @@
+2017-11-22 17:13:27,178 - Master_logger - INFO - building master
+2017-11-22 17:13:27,520 - Master - INFO - Master setup completed
+2017-11-22 17:13:27,521 - Master_logger - INFO - starting master
+2017-11-22 17:13:27,522 - Master_logger - INFO - building olympus
+2017-11-22 17:13:34,895 - Master_logger - INFO - starting olympus
+2017-11-22 17:13:34,898 - Master_logger - INFO - building client : 0
+2017-11-22 17:13:36,882 - Master_logger - INFO - starting client : 0
+2017-11-22 17:13:37,022 - Master - INFO - received client0 final state: OrderedDict([('movie', 'star wars')])
+2017-11-22 17:13:37,089 - Master - INFO - received all replicas final state: OrderedDict([(1, OrderedDict([('movie', 'star wars')])), (2, OrderedDict([('movie', 'star wars')])), (0, OrderedDict([('movie', 'star wars')]))])
+2017-11-22 17:14:58,066 - Master_logger - INFO - building master
+2017-11-22 17:14:58,872 - Master - INFO - Master setup completed
+2017-11-22 17:14:58,874 - Master_logger - INFO - starting master
+2017-11-22 17:14:58,876 - Master_logger - INFO - building olympus
+2017-11-22 17:14:59,540 - Master_logger - INFO - starting olympus
+2017-11-22 17:14:59,541 - Master_logger - INFO - building client : 0
+2017-11-22 17:15:00,146 - Master_logger - INFO - starting client : 0
+2017-11-22 17:15:03,664 - Master - INFO - received all replicas final state: OrderedDict([(0, OrderedDict([('movie', 'star wars')])), (1, OrderedDict([('movie', 'star wars')])), (2, OrderedDict([('movie', 'star wars')]))])
+2017-11-22 17:15:03,674 - Master - INFO - received client0 final state: OrderedDict([('movie', 'star wars')])
+2017-11-22 17:15:27,237 - Master_logger - INFO - building master
+2017-11-22 17:15:27,544 - Master - INFO - Master setup completed
+2017-11-22 17:15:27,545 - Master_logger - INFO - starting master
+2017-11-22 17:15:27,546 - Master_logger - INFO - building olympus
+2017-11-22 17:15:34,866 - Master_logger - INFO - starting olympus
+2017-11-22 17:15:34,868 - Master_logger - INFO - building client : 0
+2017-11-22 17:15:36,862 - Master_logger - INFO - starting client : 0
+2017-11-22 17:15:37,863 - Master - INFO - received client0 final state: OrderedDict([('movie', 'star wars')])
+2017-11-22 17:15:37,932 - Master - INFO - received all replicas final state: OrderedDict([(0, OrderedDict([('movie', 'star wars')])), (1, OrderedDict([('movie', 'star wars')])), (2, OrderedDict([('movie', 'star wars')]))])

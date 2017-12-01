@@ -1,0 +1,1534 @@
+import sys
+import os
+import copy
+import time
+import logging
+import pickle
+import nacl.encoding
+import nacl.hash
+import nacl.signing
+import nacl
+from nacl.bindings.utils import sodium_memcmp
+from collections import OrderedDict
+from copy import deepcopy
+config(channel is {fifo, reliable}, clock is lamport)
+
+class Replica(process):
+    def setup(
+            args,
+            olympus,
+            is_head: bool,
+            is_tail: bool,
+            replica_number: int,
+            config_id: int,
+            olympus_public_key_hex):
+        self.config_id = config_id
+        self.test = False
+        self.checkpoint_data = OrderedDict()
+        self.data = OrderedDict()  # copy of replicated data
+        self.running_state_copy = None
+        # if replica is head of the chain
+        # set timeout to head_timeout from supplied configuration parameters.
+        # else, set it to nonhead_timeout from the supplied configuration
+        if is_head:
+            self.timeout = args['head_timeout']
+        else:
+            self.timeout = args['nonhead_timeout']
+        self.quorum = args['t'] + 1
+        self.slot_number = -1  # slot number for client operations
+        self.prev_slot_num = -1  # previous slot number proccessed by replica
+        self.is_head = is_head  # flag indicating replica is head of the chain
+        self.is_tail = is_tail  # flag indicating replica is tail of the chain
+        self.mode = 'PENDING'  # current mode of the replica
+        # dictionary containing all replicas in current configuration
+        self.configuration = OrderedDict()
+        self.replica_id = replica_number  # id of the replica
+        # dictionary for maintaining results of successfully processed requests
+        self.result_cache = OrderedDict()
+        # dictionary for maintaining result statements for latest requests
+        # executed for each client
+        self.latest_result_stmts = OrderedDict()
+        # dictionary for maintaining the order proofs for previously processed
+        # operations
+        self.history = OrderedDict()
+        self.private_key = None  # signing key of the replica
+        self.public_keys = []  # verify keys of all replicas
+        self.clients_public_key = OrderedDict()  # verify keys of clients
+        self.olympus = olympus  # olympus object
+        self.olympus_verify_key = nacl.signing.VerifyKey(
+            olympus_public_key_hex, encoder=nacl.encoding.HexEncoder)
+        # maintain number of request directly from client
+        self.client_request_number = OrderedDict()
+        self.running_status_request_number = -1
+        # maintain number of request forwarded by other replicas
+        self.forwarded_request_number = OrderedDict()
+        # dictionary for maintaining number of result shuttles processed per
+        # result shuttle count
+        self.client_result_shuttle_number = OrderedDict()
+        # dictionary for maintaining number of request shuttles processed per
+        # client request shuttle count
+        self.client_req_shuttle_number = OrderedDict()
+        # checkpoint shuttle count
+        self.checkpoint_number = -1
+        # completed checkpoint shuttle count
+        self.completed_checkpoint_number = -1
+        # wedged request count
+        self.wedge_request_number = -1
+        # catch up messages count
+        self.catch_up_number = -1
+        self.failure_trigger_key = 'failures[' + \
+            str(config_id) + ',' + str(replica_number) + ']'
+        # dictionary for maintaining trigger, failure pairs for this replica
+        self.trigger_failure = OrderedDict()
+        # if replica has to inject failure, get the trigger, failure pairs from
+        # configuration parameters
+        if failure_trigger_key in args:
+            trigger_failure = build_trigger_failure(args[failure_trigger_key])
+        # flag indicating if trigger is received for 'change_operation()'
+        # failure
+        self.change_operation_flag = False
+        # flag indicating if trigger is received for 'change_result()' failure
+        self.change_result_flag = False
+        self.increment_slot_flag = False
+        self.invalid_order_sign_flag = False
+        self.invalid_result_sign_flag = False
+        self.truncate_history_flag = False
+        self.truncate_count = 0
+        # flag indicating if trigger is received for 'drop_result_stmt()'
+        # failure
+        self.drop_result_statement_flag = False
+        self.drop_checkpt_stmts_flag = False
+        self.drop_request = False
+        self.checkpoint_interval = args['checkpt_interval']
+        self.latest_checkpoint = (None, None)
+        # counter for number of operations performed
+        self.logger = initialize_logger(args['test_case_name'])
+        logger.info('Replica setup completed')
+        logger.info('initial settings are')
+        logger.info(
+            'replica id: %s\n  is_head: %s\n is_tail: %s',
+            replica_id,
+            is_head,
+            is_tail)
+
+    # create logger for logging into Replica<id>-log-<test_case_name> file
+    def initialize_logger(test_case_name):
+        logger = logging.getLogger('Replica' + str(replica_id))
+        logger.setLevel(logging.DEBUG)
+        fh = logging.FileHandler(
+            'Replica' +
+            str(replica_id) +
+            '-log-' +
+            test_case_name)
+        fh.setLevel(logging.DEBUG)
+        formatter = logging.Formatter(
+            '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        fh.setFormatter(formatter)
+        logger.addHandler(fh)
+        return logger
+
+    # build the dictionary for trigger,failure pairs for this replica
+    def build_trigger_failure(failures):
+        failure_trigger_list = failures.split(';')
+        trigger_failure_dict = OrderedDict()
+        for i in range(len(failure_trigger_list)):
+            event_action = failure_trigger_list[i]
+            if event_action:
+                t_f = event_action.split(',')
+                if len(t_f) == 3:
+                    key = t_f[0].strip() + ',' + t_f[1].strip()
+                    if key in trigger_failure_dict:
+                        trigger_failure_dict[key].append(t_f[2].strip())
+                    else:
+                        trigger_failure_dict[key] = [t_f[2].strip()]
+                else:
+                    key = t_f[0].strip()
+                    if key in trigger_failure_dict:
+                        trigger_failure_dict[key].append(t_f[1].strip())
+                    else:
+                        trigger_failure_dict[key] = [t_f[1].strip()]
+        return trigger_failure_dict
+
+    # perform the specified operation and return result
+    def perform_operation(operation, state=None):
+        logger.info('performing operation: %s', operation)
+        result = None
+        op = operation.split("'")
+        key = op[1]
+        if 'put' in operation:
+            value = op[3]
+            if state:
+                state[op[1]] = op[3]
+            else:
+                data[op[1]] = op[3]
+            val = 'OK'
+        elif 'get' in operation:
+            if state:
+                if key in state:
+                    val = state[key]
+                else:
+                    val = ' '
+            else:
+                if key in data:
+                    val = data[key]
+                else:
+                    val = ' '
+        elif 'slice' in operation:
+            slice = op[3].split(':')
+            start_index = int(slice[0])
+            end_index = int(slice[1])
+            if state:
+                if key in state:
+                    value = state[key]
+                    if start_index < end_index and end_index <= len(value):
+                        state[key] = value[start_index: end_index]
+                        val = 'OK'
+                    else:
+                        val = 'fail'
+                else:
+                    val = 'fail'
+            else:
+                if key in data:
+                    value = data[key]
+                    if start_index < end_index and end_index <= len(value):
+                        data[key] = value[start_index: end_index]
+                        val = 'OK'
+                    else:
+                        val = 'fail'
+                else:
+                    val = 'fail'
+        elif 'append' in operation:
+            value = op[3]
+            if state:
+                if key in state:
+                    state[key] += value
+                    val = 'OK'
+                else:
+                    val = 'fail'
+            else:
+                if key in data:
+                    data[key] += value
+                    val = 'OK'
+                else:
+                    val = 'fail'
+        result = (val,)
+        logger.info('result of operation: %s', result)
+        return result
+
+    # send the shuttle to next replica in the chain
+    def send_shuttle_to_successor(shuttle, sender):
+        successor = 'replica' + str(replica_id + 1)
+        send(('shuttle', shuttle, sender), to=configuration[successor])
+        logger.info('shuttle sent to successor : %s\n Message sent: %s',
+                    successor, ('shuttle', shuttle, sender))
+
+    # send the response to client with result and completed result proof
+    def send_result_to_client(request_id, response, client):
+        send(('response', request_id, response), to=client)
+        logger.info(
+            'sent response %s to client request with request id: %s',
+            ('response', request_id, response),
+            request_id)
+
+    # save the backward result shuttle in result cache
+    def cache_result_shuttle(shuttle):
+        client_id, request_id, order_proof, result_proof, client_request = shuttle
+        result_cache[(client_id, request_id)] = (order_proof, result_proof)
+        logger.info(
+            'cached result shuttle for client id:%s request id:%s shuttle:%s',
+            client_id,
+            request_id,
+            (order_proof,
+             result_proof))
+
+    # send the result shuttle to predecessor replica in the chain
+    def send_result_shuttle(shuttle):
+        predecessor = 'replica' + str(replica_id - 1)
+        send(('result_shuttle', shuttle), to=configuration[predecessor])
+        logger.info(
+            'shuttle sent to predecessor : %s\n Message sent: %s',
+            predecessor,
+            ('result_shuttle',
+             shuttle))
+
+    # calculate cryptographic hash of the received result
+    # return: calculated digest
+    def get_hashed_result(result):
+        HASHER = nacl.hash.sha256
+        result_bytes = pickle.dumps(result)
+        digest = HASHER(result_bytes, encoder=nacl.encoding.HexEncoder)
+        result_bytes = pickle.dumps(result)
+        digest = HASHER(result_bytes, encoder=nacl.encoding.HexEncoder)
+        logger.info(
+            'result: %s\n cryptographic hash of the result: %s',
+            result,
+            digest)
+        return digest
+
+    # return: statement signed with signing key of replica.
+    # signing requires message to be in bytes format, hence pickle the
+    # statement to be signed
+    def pickle_sign_statement(statement):
+        logger.debug('signing statement: %s', statement)
+        pickled_statement = pickle.dumps(statement)
+        signed_statement = private_key.sign(pickled_statement)
+        return signed_statement
+
+    # build order statment signed with signing key of this replica
+    def build_signed_order_statement(slot_number, operation):
+        statement = ('order', slot_number, operation)
+        if invalid_order_sign_flag:
+            invalid_order_sign_flag = False
+            pickled_statement = pickle.dumps(statement)
+            faulty_private_key = nacl.signing.SigningKey.generate()
+            faulty_signed_statement = faulty_private_key.sign(
+                pickled_statement)
+            logger.debug(
+                'FAULT INJECTION : INVALID ORDER SIGNATURE for slot number %s',
+                slot_number)
+            return faulty_signed_statement
+        return pickle_sign_statement(statement)
+
+    # build result statement signed with signing key of this replica
+    def build_signed_result_statement(operation, cryptographic_hash_of_result):
+        statement = ('result', operation, cryptographic_hash_of_result)
+        return pickle_sign_statement(statement)
+
+    # check if order statements of predecessors are valid
+    def validate_order_statements(operation, order_statements):
+        for i in range(len(order_statements)):
+            order_statement = order_statements[i]
+            try:
+                replica_verify_key = public_keys[i]
+                verified_order_statement = replica_verify_key.verify(
+                    order_statement)
+                unpickled_order_statement = pickle.loads(
+                    verified_order_statement)
+                if operation != unpickled_order_statement[2]:
+                    logger.warning(
+                        'operation performed [%s]' +
+                        ' not equat to operation[%s] in replica%s' +
+                        'order statement',
+                        operation,
+                        unpickled_order_statement[2],
+                        i)
+                    return False
+            except BaseException:
+                exc_type, exc_value, exc_traceback = sys.exc_info()
+                logger.error(
+                    'Exception occurred in' +
+                    ' validation of' +
+                    ' order statement of replica %s for operation: %s\n' +
+                    ' Type: %s\n Value: %s\n Trace: %s',
+                    i,
+                    operation,
+                    exc_type,
+                    exc_value,
+                    exc_traceback)
+                return False
+        return True
+
+    # check if result statement is signed and has a valid crptographic hash of
+    # result
+    def validate_result_statement(
+            cryptographic_hash_of_result,
+            result_statement,
+            replica_verify_key):
+        try:
+            verified_result_statement = replica_verify_key.verify(
+                result_statement)
+            unpickled_result_statement = pickle.loads(
+                verified_result_statement)
+            if cryptographic_hash_of_result != unpickled_result_statement[2]:
+                logger.warning(
+                    'result hash does not match hash in result statement:%s',
+                    unpickled_result_statement)
+                return False
+            return True
+        except BaseException:
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            logger.error(
+                'Exception occurred in validation of result statement %s.\n' +
+                ' Type: %s\n Value: %s\n Trace: %s',
+                result_statement,
+                exc_type,
+                exc_value,
+                exc_traceback)
+            return False
+
+    # check if result statements of predecessor replicas are signed and valid
+    def validate_result_statements_forward(
+            cryptographic_hash_of_result,
+            result_statements):
+        for i in range(len(result_statements)):
+            result_statement = result_statements[i]
+            replica_verify_key = public_keys[i]
+            if not validate_result_statement(
+                    cryptographic_hash_of_result,
+                    result_statement,
+                    replica_verify_key):
+                logger.warning(
+                    'invalid result statement found for replica: %s', i)
+                return False
+        return True
+
+    # check if result statements of successor replicas are signed and valid
+    def validate_result_statements_backward(
+            cryptographic_hash_of_result,
+            result_statements):
+        for i in range(replica_id, len(result_statements)):
+            replica_verify_key = public_keys[i]
+            result_statement = result_statements[i]
+            if not validate_result_statement(
+                    cryptographic_hash_of_result,
+                    result_statement,
+                    replica_verify_key):
+                logger.warning(
+                    'invalid result statement found for replica: %s', i)
+                return False
+        return True
+
+    # check if current slot number is unique [ i.e. there is not previously
+    # executed operation with same slot number]
+    def validate_slot_number(current_slot_number):
+        logger.info(
+            'current_slot_number: %s prev_slot_num: %s',
+            current_slot_number,
+            prev_slot_num)
+        if prev_slot_num + 1 != current_slot_number:
+            logger.warning(
+                'invalid slot number found : %s previous slot' +
+                'number processed : %s',
+                current_slot_number,
+                prev_slot_num)
+            return False
+        for value in history.values():
+            order_proof, signed_client_request = value
+            if order_proof[0] == current_slot_number:
+                logger.warning(
+                    'duplicate slot number found : %s', current_slot_number)
+                logger.warning(
+                    'previously performed operation : %s ',
+                    order_proof[1])
+                return False
+            if prev_slot_num + 1 != current_slot_number:
+                logger.warning(
+                    'invalid slot number found : %s previous' +
+                    'slot number processed : %s',
+                    current_slot_number,
+                    prev_slot_num)
+                return False
+        prev_slot_num = current_slot_number
+        return True
+
+    def request_for_reconfiguration():
+        mode = 'IMMUTABLE'
+        reconfig_req = pickle_sign_statement(('request_reconfiguration'))
+        send(('request_reconfiguration', reconfig_req), to=olympus)
+        logger.info(
+            'reconfiguration request sent to olympus. Message sent: %s',
+            ('request_reconfiguration',
+             reconfig_req))
+
+    def check_wedge_request_failure_trigger(m):
+        wedge_request_failure_str = 'wedge_request(' + str(m) + ')'
+        set_failure_flags(wedge_request_failure_str)
+
+    def receive(msg=('wedge', wedge_request), from_=olympus):
+        logger.info('wedge request received')
+        wedge_request_number += 1
+        check_wedge_request_failure_trigger(wedge_request_number)
+        if drop_request:
+            logger.info('dropping the wedge request from olympus')
+            drop_request = False
+            return
+        if not private_key:
+            logger.info(
+                'No private key available.' +
+                'Cannot send wedged message to olympus.')
+            return
+        try:
+            olympus_verify_key.verify(wedge_request)
+            logger.info('wedge request from olympus verified successfully')
+            mode = 'IMMUTABLE'
+            logger.warning('Replica MODE changed to IMMUTABLE')
+        except BaseException:
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            logger.error(
+                'Exception occurred in validation of' +
+                'wedge request from olympus' +
+                '\nType: %s\n Value: %s\n Trace: %s',
+                exc_type,
+                exc_value,
+                exc_traceback)
+
+        if truncate_history_flag:
+            logger.debug(
+                'FAULT INJECTION: TRUNCATE HISTORY.' +
+                'HISTORY BEFORE TRUNCATION %s ',
+                history)
+            history_copy = deepcopy(history)
+            k = list(history.keys())
+            l = len(history)
+            for i in range(l - 1, l - truncate_count - 1, -1):
+                if i >= 0:
+                    logger.debug('Deleting entry for client request %s', k[i])
+                    del history_copy[k[i]]
+            logger.debug(
+                'FAULT INJECTION: TRUNCATE HISTORY.' +
+                ' HISTORY AFTER TRUNCATION %s ',
+                history_copy)
+            truncate_history_flag = False
+            truncate_count = 0
+            signed_wedged_statement = pickle_sign_statement(
+                (latest_checkpoint[0], latest_checkpoint[1], history_copy))
+        else:
+            signed_wedged_statement = pickle_sign_statement(
+                (latest_checkpoint[0], latest_checkpoint[1], history))
+        send(('wedged', signed_wedged_statement), to=olympus)
+        logger.info(
+            'wedged statement sent to olympus. \nMessage sent: %s',
+            signed_wedged_statement)
+
+    # validate, perform operation
+    # send the request shuttle to client/successor replica
+    # request reconfiguration in case of validation failure
+    def process_request_shuttle(shuttle, client, sender):
+        client_id, request_id, order_proof, result_proof, signed_client_request = shuttle
+        if not is_head and not validate_client_request_in_shuttle(
+                order_proof[1], signed_client_request, client):
+            logger.warning(
+                'Client request validation failed.' +
+                ' requesting reconfiguration\n')
+            request_for_reconfiguration()
+            return
+        if not is_head and not validate_slot_number(order_proof[0]):
+            logger.warning(
+                'Slot number validation failed. requesting reconfiguration\n')
+            request_for_reconfiguration()
+            return
+        if not is_head and not validate_order_statements(
+                order_proof[1], order_proof[3]):
+            logger.warning(
+                'Order statement validation failed.' +
+                ' requesting reconfiguration.\n')
+            request_for_reconfiguration()
+            return
+        operation = order_proof[1]
+        result = perform_operation(operation)
+        if order_proof[0] % checkpoint_interval == (checkpoint_interval - 1):
+            checkpoint_data[order_proof[0]] = deepcopy(data)
+        cryptographic_hash_of_result = get_hashed_result(result)
+        if not is_head and not validate_result_statements_forward(
+                cryptographic_hash_of_result, result_proof[3]):
+            logger.warning(
+                'Result statement validation failed.' +
+                ' requesting reconfiguration.\n')
+            request_for_reconfiguration()
+            return
+        if change_operation_flag:
+            logger.debug(
+                'FAULT INJECTION:' +
+                ' CHANGING OPERATION.\n' +
+                ' actual operation: %s\n changed operation: %s',
+                operation,
+                "get('x')")
+            operation = "get('x')"
+            change_operation_flag = False
+        result_statement = build_signed_result_statement(
+            operation, cryptographic_hash_of_result)
+        latest_result_stmts[client_id] = (result, result_statement, request_id)
+        result_proof[1] = result
+        result_proof[3].append(result_statement)
+        order_statement = build_signed_order_statement(
+            order_proof[0], operation)
+        order_proof[3].append(order_statement)
+        # save the order proof in history
+        history[(client_id, request_id)] = (order_proof, signed_client_request)
+        shuttle = (
+            client_id,
+            request_id,
+            order_proof,
+            result_proof,
+            signed_client_request)  # create shuttle
+        if not is_tail:  # if replica is not tail, send shuttle to successor
+            if invalid_result_sign_flag:
+                invalid_result_sign_flag = False
+                res_stmt = ('result', operation, cryptographic_hash_of_result)
+                pickled_res_stmt = pickle.dumps(res_stmt)
+                faulty_private_key = nacl.signing.SigningKey.generate()
+                faulty_signed_statement = faulty_private_key.sign(
+                    pickled_res_stmt)
+                logger.debug(
+                    'FAULT INJECTION : INVALID RESULT SIGNATURE' +
+                    ' for slot number %s',
+                    order_proof[0])
+                # remove the correct one
+                result_proof[3].remove(result_statement)
+                # inject the invalid one
+                result_proof[3].append(faulty_signed_statement)
+                shuttle = (
+                    client_id,
+                    request_id,
+                    order_proof,
+                    result_proof,
+                    signed_client_request)
+            send_shuttle_to_successor(shuttle, client)
+        # if replica is tail, send result to client and shuttle to predecessor
+        else:
+            if change_result_flag:
+                logger.debug(
+                    'FAULT INJECTION:' +
+                    ' CHANGING HASH OF RESULT IN RESULT STATEMENT' +
+                    ' IN OUTGOING MESSAGE')
+                result_proof = change_result(result_proof)
+                change_result_flag = False
+            if drop_result_statement_flag:
+                logger.debug(
+                    'FAULT INJECTION:' +
+                    ' DROPPING RESULT STATEMENT OF HEAD FROM' +
+                    ' RESULT PROOF IN OUTGOING MESSAGE')
+                result_statements = result_proof[3]
+                result_statements.pop(0)
+                result_proof[3] = result_statements
+            cache_result_shuttle(shuttle)
+            send_result_shuttle(
+                (client_id, request_id, order_proof, result_proof, signed_client_request))
+            if invalid_result_sign_flag:
+                invalid_result_sign_flag = False
+                res_stmt = ('result', operation, cryptographic_hash_of_result)
+                pickled_res_stmt = pickle.dumps(res_stmt)
+                faulty_private_key = nacl.signing.SigningKey.generate()
+                faulty_signed_statement = faulty_private_key.sign(
+                    pickled_res_stmt)
+                logger.debug(
+                    'FAULT INJECTION : INVALID RESULT SIGNATURE' +
+                    ' for slot number %s',
+                    slot_number)
+                # remove the correct one
+                result_proof[3].remove(result_statement)
+                # inject the invalid one
+                result_proof[3].append(faulty_signed_statement)
+            send_result_to_client(request_id, (result, result_proof), client)
+    # create the shuttle tuple using the provided arguments: slot_number,
+    # client_id, request_id, operation
+
+    def build_shuttle(
+            slot_number,
+            client_id,
+            request_id,
+            operation,
+            signed_client_request):
+        order_proof = [slot_number, operation, configuration, []]
+        result_proof = [operation, ' ', configuration, []]
+        shuttle = (
+            client_id,
+            request_id,
+            order_proof,
+            result_proof,
+            signed_client_request)
+        logger.info(
+            'shutle created: %s',
+            (client_id,
+             request_id,
+             order_proof,
+             result_proof,
+             signed_client_request))
+        return shuttle
+
+    # create response for the client's request with id specified in the
+    # arguments
+    def build_response(client_id, request_id):
+        order_proof, result_proof = result_cache[(client_id, request_id)]
+        result = result_proof[1]
+        if change_result_flag:
+            logger.debug('FAULT INJECTION:')
+            logger.debug(
+                'CHANGING HASH OF RESULT' +
+                ' IN RESULT STATEMENT IN OUTGOING MESSAGE')
+            result_proof = change_result(result_proof)
+            change_result_flag = False
+        if drop_result_statement_flag:
+            logger.debug(
+                'FAULT INJECTION:' +
+                ' DROPPING RESULT STATEMENT OF HEAD FROM' +
+                ' RESULT PROOF IN OUTGOING MESSAGE')
+            result_statements = result_proof[3]
+            result_statements.pop(0)
+            result_proof[3] = result_statements
+        response = (result, result_proof)
+        logger.info(
+            'response created for client id: %s request id: %s response: %s',
+            client_id,
+            request_id,
+            response)
+        return response
+
+    # FAULT INJECTION: change the hash of result to hash of '('OK',)' in
+    # result statement of this replica in the result proof
+    def change_result(result_proof):
+        operation = result_proof[0]
+        result_statements = result_proof[3]
+        cryptographic_hash_of_result = get_hashed_result(('OK',))
+        changed_result_statement = build_signed_result_statement(
+            operation, cryptographic_hash_of_result)
+        result_proof[3][replica_id] = changed_result_statement
+        return result_proof
+
+    # This operation is to be performed only by the head replica
+    # send result of client request to replica which forwarded the client's
+    # request to head
+    def send_receipt_to_replica(
+            client_id,
+            request_id,
+            signed_client_request,
+            sender):
+        order_proof, result_proof = result_cache[(client_id, request_id)]
+        receipt = (
+            client_id,
+            request_id,
+            order_proof,
+            result_proof,
+            signed_client_request)
+        send(('receipt', receipt), to=sender)
+        logger.info('Receipt sent to replica')
+
+    # forward client's request to head as the result was not found in the
+    # result_cache
+    def forward_request_to_head(client_request, signed_client_request):
+        send(('forwarded_request', client_request, signed_client_request),
+             to=configuration['replica0'])
+        logger.info(
+            'Client request forwarded to head. \n Message sent: %s ',
+            ('forwarded_request',
+             client_request))
+
+    # send error statement to client
+    def send_error_statement(client):
+        send(('error',), to=client)
+        logger.info('Error statement sent. \n Message sent: %s', ('error',))
+
+    # set fault injection flags for the specified trigger string
+    def set_failure_flags(req_str):
+        if req_str in trigger_failure:
+            if 'change_operation()' in trigger_failure[req_str]:
+                change_operation_flag = True
+                logger.debug(
+                    'trigger: %s for failure: CHANGE OPERATION', req_str)
+            elif 'change_result()' in trigger_failure[req_str]:
+                change_result_flag = True
+                logger.debug('trigger: %s for failure: CHANGE RESULT', req_str)
+            elif 'drop_result_stmt()' in trigger_failure[req_str]:
+                drop_result_statement_flag = True
+                logger.debug(
+                    'trigger: %s for failure: DROP RESULT STATEMENT', req_str)
+            elif 'increment_slot()' in trigger_failure[req_str]:
+                increment_slot_flag = True
+                logger.debug(
+                    'trigger: %s for failure: INCREMENT SLOT', req_str)
+            elif 'crash()' in trigger_failure[req_str]:
+                logger.debug('trigger: %s for failure: ', req_str)
+                logger.debug('FAULT INJECTION : CRASH')
+                logging.shutdown()
+                os._exit(-1)
+            elif 'drop_checkpt_stmts()' in trigger_failure[req_str]:
+                drop_checkpt_stmts_flag = True
+                logger.debug(
+                    'trigger: %s for failure: DROP CHECKPOINT STATEMENTS',
+                    req_str)
+            elif 'sleep(' in trigger_failure[req_str]:
+                val = trigger_failure[req_str].split('(')
+                val1 = val[1].split(')')
+                logger.debug(
+                    'trigger: %s for failure: Sleep for %s milliseconds',
+                    req_str,
+                    val1[0])
+                time.sleep(int(val1[0]) // 1000)
+            elif 'drop()' in trigger_failure[req_str]:
+                drop_request = True
+                logger.debug('trigger: %s for failure: ', req_str)
+                logger.debug(' ignoring the incoming the request %s', req_str)
+            elif 'invalid_order_sig()' in trigger_failure[req_str]:
+                invalid_order_sign_flag = True
+                logger.debug('trigger: %s for failure: ', req_str)
+            elif 'invalid_result_sig()' in trigger_failure[req_str]:
+                invalid_result_sign_flag = True
+                logger.debug('trigger: %s for failure: ', req_str)
+            elif 'extra_op()' in trigger_failure[req_str]:
+                logger.debug('trigger: %s for failure: ', req_str)
+                logger.debug(
+                    'FAULT INJECTION: EXTRA OPERATION.' +
+                    ' Data before extra operation: %s ', data)
+                data['a'] = 'a'
+                logger.debug('Data after extra operation is: %s', data)
+            else:
+                for f in trigger_failure[req_str]:
+                    if 'truncate_history(' in f:
+                        val = f.split('(')
+                        val1 = val[1].split(')')
+                        truncate_history_flag = True
+                        truncate_count = int(val1[0])
+                        logger.debug('trigger: %s for failure: ', req_str)
+                    if 'sleep(' in f:
+                        val = f.split('(')
+                        val1 = val[1].split(')')
+                        logger.debug(
+                            'trigger: %s for failure: Sleep' +
+                            ' for %s seconds', req_str, val1[0])
+                        time.sleep(int(val1[0]) // 1000)
+
+    # check if client request is a trigger for fault injection
+    def check_failure_trigger_client_request(client_request, sender):
+        client_id, client, request_id, operation = client_request
+        if sender == client:
+            req_number = client_request_number[client_id]
+            client_req_str = 'client_request(' + \
+                             str(client_id) + ',' + str(req_number) + ')'
+            set_failure_flags(client_req_str)
+        else:
+            req_number = forwarded_request_number[client_id]
+            forwarded_req_str = 'forwarded_request(' + str(
+                client_id) + ',' + str(req_number) + ')'
+            set_failure_flags(forwarded_req_str)
+
+    # increment the request numbers appropriately depending on whether sender
+    # is a replica or a client
+    def pre_process(client_request, sender):
+        client_id, client, request_id, operation = client_request
+        if sender == client:
+            if client_id in client_request_number:
+                client_request_number[client_id] += 1
+            else:
+                client_request_number[client_id] = 0
+        else:
+            if client_id in forwarded_request_number:
+                forwarded_request_number[client_id] += 1
+            else:
+                forwarded_request_number[client_id] = 0
+
+    def initiate_checkpoint(slot_num):
+        logger.info('intiating checkpoint for slot number %s', slot_num)
+        checkpoint_proof = []
+        cryptographic_hash_of_running_state = get_hashed_running_state(
+            checkpoint_data[slot_num])
+        signed_checkpoint_statement = build_signed_checkpoint_statement(
+            cryptographic_hash_of_running_state)
+        checkpoint_proof.append(signed_checkpoint_statement)
+        checkpoint = (slot_num, checkpoint_proof)
+        forward_checkpoint_shuttle('forward', checkpoint)
+
+    # handle request received directly from client
+    def process_client_request(client_request, signed_client_request, sender):
+        client_id, client, request_id, operation = client_request
+        if mode == 'ACTIVE':  # proceed only if replica is ACTIVE
+            if (client_id, request_id) in result_cache:
+                logger.debug(
+                    'result found in cache for:\n' +
+                    ' request id: %s\n client id: %s',
+                    request_id,
+                    client_id)
+                response = build_response(client_id, request_id)
+                if sender == client:
+                    send_result_to_client(request_id, response, client)
+                else:
+                    send_receipt_to_replica(
+                        client_id, request_id, signed_client_request, sender)
+            # if head has processed the request and
+            # is expecting a result shuttle
+            elif is_head:
+                if (client_id, request_id) in history:
+                    logger.debug(
+                        'HEAD replica processed operation for client id: %s,' +
+                        ' request id: %s . Waiting for result shuttle.',
+                        client_id,
+                        request_id)
+                    await((client_id, request_id) in result_cache)
+                    response = build_response(client_id, request_id)
+                    if sender == client:
+                        send_result_to_client(request_id, response, client)
+                    else:
+                        send_receipt_to_replica(
+                            client_id, request_id, signed_client_request, sender)
+                        send_result_to_client(request_id, response, client)
+                # if head does not recognize the operation,
+                # start the protocol from scratch
+                else:
+                    logger.debug(
+                        'New request with id: %s' +
+                        ' received from client : %s. Processing request.',
+                        request_id,
+                        client_id)
+                    if increment_slot_flag:
+                        logger.info(
+                            'FAULT INJECTION: INCREMENTING SLOT NUMBER')
+                        slot_number += 1
+                        increment_slot_flag = False
+                    slot_number += 1
+                    shuttle = build_shuttle(
+                        slot_number,
+                        client_id,
+                        request_id,
+                        operation,
+                        signed_client_request)
+                    process_request_shuttle(shuttle, client, sender)
+
+            # non head replica received client request
+            # Did not find result in cache. Forwarding request to HEAD.
+            else:
+                logger.debug(
+                    'No result found for client id: %s ,' +
+                    ' request id: %s. Forwarding request to head.',
+                    client_id,
+                    request_id)
+                forward_request_to_head(client_request, signed_client_request)
+                if await((client_id, request_id) in result_cache):
+                    response = build_response(client_id, request_id)
+                    send_result_to_client(request_id, response, client)
+                    logger.debug(
+                        'result for forwarded request obtained in cache. \n' +
+                        ' client id: %s, \n request id: %s \n' +
+                        ' response sent to client.',
+                        client_id,
+                        request_id)
+                elif timeout(timeout):
+                    logger.warning(
+                        'Timeoud out.' +
+                        ' No result for client request obtained' +
+                        ' within timeout.' +
+                        ' Requesting reconfiguration. \n')
+                    request_for_reconfiguration()
+                    return
+                elif mode != 'ACTIVE':
+                    logger.warning(
+                        'Replica mode changed to IMMUTABLE.' +
+                        ' Terminating from further processing of request.')
+                    return
+        elif mode != 'ACTIVE':
+            if sender == client:
+                logger.warning(
+                    'Replica is IMMUTABLE.' +
+                    ' Cannot perform operation for client id: %s' +
+                    ' request id: %s',
+                    client_id,
+                    request_id)
+                send_error_statement(client)
+
+    # run the replica process
+    def run():
+        await(received(('done',)))  # wait for DONe message from Olympus
+        logger.info(
+            'Done message received from Olympus.' +
+            ' Sending current state to Olympus.')
+        send(('replica_final_state', replica_id, data), to=olympus)
+        logger.info('Message sent to Olympus: %s ',
+                    ('replica_final_state', replica_id, data))
+        while True:
+            pass
+
+    # check if request is received from a valid client
+    # return verified request
+    def validate_client_request(client_request, sender):
+        try:
+            client_verify_key = clients_public_key[sender]
+            verified_request = client_verify_key.verify(client_request)
+            request = pickle.loads(verified_request)
+            return request
+        except BaseException:
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            logger.error(
+                'Exception occurred in validation' +
+                ' of client request\n Type: %s\n Value: %s\n Trace: %s',
+                exc_type,
+                exc_value,
+                exc_traceback)
+            return False
+
+    def validate_client_request_in_shuttle(
+            operation, signed_client_request, client):
+        try:
+            client_verify_key = clients_public_key[client]
+            verified_request = client_verify_key.verify(signed_client_request)
+            request = pickle.loads(verified_request)
+            if request[3] != operation:
+                return False
+            return True
+        except BaseException:
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            logger.error(
+                'Exception occurred in validation ' +
+                ' of client request\n Type: %s\n Value: %s\n Trace: %s',
+                exc_type,
+                exc_value,
+                exc_traceback)
+            return False
+
+    # handler for receiving client request. Process client request only if it
+    # is validated successfully.
+    def receive(msg=('request', client_request), from_=sender):
+        if mode != 'ACTIVE':
+            logger.warning(
+                'Replica is IMMUTABLE. Cannot process received request.')
+            return
+        logger.info('client request received: %s', ('request', client_request))
+        validated_client_req = validate_client_request(client_request, sender)
+        if validated_client_req:
+            logger.info('Validated client request: %s', validated_client_req)
+            pre_process(validated_client_req, sender)
+            check_failure_trigger_client_request(validated_client_req, sender)
+            if drop_request:
+                logger.info('dropping the client request')
+                drop_request = False
+                return
+            process_client_request(
+                validated_client_req, client_request, sender)
+
+    # handler for receiving forwarded client request from a non head replica
+    def receive(
+            msg=(
+                'forwarded_request',
+                validated_client_request,
+                client_request),
+            from_=sender):
+        if mode != 'ACTIVE':
+            logger.warning(
+                'Replica is IMMUTABLE. Cannot process received request.')
+            return
+        logger.info('Forwarded request received %s',
+                    ('forwarded_request', validated_client_request))
+        pre_process(validated_client_request, sender)
+        client_id = validated_client_request[0]
+        check_failure_trigger_client_request(validated_client_request, sender)
+        if drop_request:
+            logger.info('dropping the forwarded client request from replica')
+            drop_request = False
+            return
+        process_client_request(
+            validated_client_request,
+            client_request,
+            sender)
+
+    # handler for receiving forward shuttle
+    def receive(msg=('shuttle', shuttle, sender)):
+        if mode != 'ACTIVE':
+            logger.warning(
+                'Replica is IMMUTABLE. Cannot process recieved shuttle.')
+            return
+        logger.info('Shuttle received from predecessor replica : %s',
+                    ('shuttle', shuttle, sender))
+        pre_process_request_shuttle(shuttle)
+        check_failure_trigger_shuttle(shuttle, 'shuttle')
+        if drop_request:
+            logger.info('dropping the shuttle from predecessor')
+            drop_request = False
+            return
+        process_request_shuttle(shuttle, sender, sender)
+
+    # increment the request numbers for forward shuttle of appropriate client
+    def pre_process_request_shuttle(shuttle):
+        client_id, request_id, order_proof, result_proof, client_request = shuttle
+        if client_id in client_req_shuttle_number:
+            client_req_shuttle_number[client_id] += 1
+        else:
+            client_req_shuttle_number[client_id] = 0
+        logger.info(
+            'pre_processing request shuttle:' +
+            ' client id: %s request shuttle number: %s',
+            client_id,
+            client_req_shuttle_number[client_id])
+
+    # handler for receiving initial configuration parameters from olympus
+    def receive(
+        msg=(
+            'init',
+            config,
+            private_key_hex,
+            public_keys_hex,
+            olympus_public_key_hex)):
+        logger.info('Init message received from Olympus: %s',
+                    ('init', config, private_key_hex, public_keys_hex))
+        configuration = config
+        # save this replicas signing key
+        private_key = nacl.signing.SigningKey(
+            private_key_hex, encoder=nacl.encoding.HexEncoder)
+        for key in public_keys_hex:  # save verify keys of all replicas
+            public_key = nacl.signing.VerifyKey(
+                key, encoder=nacl.encoding.HexEncoder)
+            public_keys.append(public_key)
+        olympus_verify_key = nacl.signing.VerifyKey(
+            olympus_public_key_hex, encoder=nacl.encoding.HexEncoder)
+        mode = 'ACTIVE'
+
+    # handler for receiving result shuttle from successor replica
+    def receive(msg=('result_shuttle', shuttle)):
+        if mode != 'ACTIVE':
+            logger.warning(
+                'Replica is IMMUTABLE. Cannot process recieved result shuttle')
+            return
+        logger.info(
+            'result shuttle received from successor replica: %s',
+            ('result_shuttle',
+             shuttle))
+        pre_process_result_shuttle(shuttle)
+        check_failure_trigger_shuttle(shuttle, 'result_shuttle')
+        if drop_request:
+            logger.info('dropping the result shuttle')
+            drop_request = False
+            return
+        process_result_shuttle(shuttle)
+
+    def receive(msg=('exit_from_run'), from_=ol):
+        if ol == olympus:
+            logger.info(
+                'exiting by replica%s in old configuration',
+                replica_id)
+            os._exit(-1)
+            logger.info('exited by replica%s in old configuration', replica_id)
+
+    # increment the request numbers for result shuttle of appropriate client
+    def pre_process_result_shuttle(shuttle):
+        client_id, request_id, order_proof, result_proof, client_request = shuttle
+        if client_id in client_result_shuttle_number:
+            client_result_shuttle_number[client_id] += 1
+        else:
+            client_result_shuttle_number[client_id] = 0
+        logger.info(
+            'pre_processing result shuttle:' +
+            ' client id: %s request id: %s result shuttle number: %s',
+            client_id,
+            request_id,
+            client_result_shuttle_number[client_id])
+
+    # check if shuttle is a trigger for fault injection
+    def check_failure_trigger_shuttle(shuttle, shuttle_type):
+        client_id = shuttle[0]
+        if shuttle_type == 'shuttle':
+            shuttle_number = client_req_shuttle_number[client_id]
+        else:
+            shuttle_number = client_result_shuttle_number[client_id]
+        shuttle_str = shuttle_type + \
+            '(' + str(client_id) + ',' + str(shuttle_number) + ')'
+        set_failure_flags(shuttle_str)
+
+    # handle the result shuttle from successor replica.
+    # validate shuttle, cache if valid and send shuttle to predecessor
+    def process_result_shuttle(result_shuttle):
+        client_id, request_id, order_proof, result_proof, client_request = result_shuttle
+        result = result_proof[1]
+        result_statements = result_proof[3]
+        cryptographic_hash_of_result = get_hashed_result(result)
+        if not validate_result_statements_backward(
+                cryptographic_hash_of_result, result_statements):
+            logger.warning(
+                'Result statements validation failed.' +
+                ' requesting reconfiguration.\n')
+            request_for_reconfiguration()
+            mode = 'IMMUTABLE'
+            logger.warning('Replica MODE changed to IMMUTABLE')
+            return
+        cache_result_shuttle(result_shuttle)
+        if not is_head:
+            if change_result_flag:
+                cryptographic_hash_of_result = get_hashed_result(('OK',))
+                operation = result_proof[0]
+                changed_result_statement = build_signed_result_statement(
+                    operation, cryptographic_hash_of_result)
+                result_statements[replica_id] = changed_result_statement
+                result_shuttle[3][3] = result_statements
+                change_result_flag = False
+                logger.debug(
+                    'FAULT INJECTION:' +
+                    ' CHANGING HASH OF RESULT IN RESULT STATEMENT' +
+                    ' IN OUTGOING MESSAGE')
+            if drop_result_statement_flag:
+                result_statements.pop(0)
+                result_shuttle[3][3] = result_statements
+                drop_result_statement_flag = False
+                logger.debug('FAULT INJECTION:')
+                logger.debug(
+                    'DROPPING RESULT STATEMENT OF HEAD IN OUTGOING MESSAGE')
+            send_result_shuttle(result_shuttle)
+        else:
+            res_shuttle_slot_num = order_proof[0]
+            # if this is the head replica
+            if res_shuttle_slot_num != 0 and res_shuttle_slot_num % checkpoint_interval == (
+                    checkpoint_interval - 1):
+                initiate_checkpoint(res_shuttle_slot_num)
+                logger.debug(
+                    'checkpoint initated for slot number : %s',
+                    res_shuttle_slot_num)
+
+    # handler for receiving result of forwarded client request from head
+    def receive(
+            msg=(
+                'receipt',
+                (client_id,
+                 request_id,
+                 order_proof,
+                 result_proof, client_request)),
+            from_=configuration['replica0']):
+        if mode != 'ACTIVE':
+            logger.warning(
+                'Replica is IMMUTABLE.' +
+                ' Cannot process recieved receipt from head.')
+            return
+        response_from_head = (
+            client_id,
+            request_id,
+            order_proof,
+            result_proof,
+            client_request)
+        logger.info(
+            'receipt from head for forwarded request: %s',
+            response_from_head)
+        cache_result_shuttle(response_from_head)
+
+    # handler for receiving client's verify key from Olympus
+    def receive(msg=('client_key', client, key)):
+        clients_public_key[client] = nacl.signing.VerifyKey(
+            key, encoder=nacl.encoding.HexEncoder)
+        logger.info('clients public key received from olympus')
+
+    def receive(msg=('checkpoint', checkpoint), from_=predecessor):
+        if mode != 'ACTIVE':
+            logger.warning(
+                'Replica is IMMUTABLE.' +
+                ' Cannot process received checkpoint shuttle')
+            return
+        checkpoint_number += 1
+        logger.info(
+            'checkpoint shuttle received from predecessor replica: %s',
+            checkpoint)
+        check_checkpoint_failure_trigger(checkpoint_number)
+        if drop_request:
+            logger.info(
+                'dropping the checkpoint shuttle' +
+                ' received from predecessor replica')
+            drop_request = False
+            return
+        slot_num, checkpoint_proof = checkpoint
+        cryptographic_hash_of_running_state = get_hashed_running_state(
+            checkpoint_data[slot_num])
+        isValid = validate_checkpoint_proof(
+            checkpoint_proof, cryptographic_hash_of_running_state)
+        if isValid:
+            signed_checkpoint_statement = build_signed_checkpoint_statement(
+                cryptographic_hash_of_running_state)
+            checkpoint_proof.append(signed_checkpoint_statement)
+            checkpoint = (slot_num, checkpoint_proof)
+            forward_checkpoint_shuttle('forward', checkpoint)
+        else:
+            logger.warning(
+                'Checkpoint proof validation failed.' +
+                ' Requesting reconfiguration')
+            request_for_reconfiguration()
+            return
+
+    def check_checkpoint_failure_trigger(m):
+        checkpoint_failure_str = 'checkpoint(' + str(m) + ')'
+        set_failure_flags(checkpoint_failure_str)
+
+    def check_get_running_state_failure_trigger(m):
+        get_running_state_failure_str = 'get_running_state(' + str(m) + ')'
+        set_failure_flags(get_running_state_failure_str)
+
+    def forward_checkpoint_shuttle(direction, checkpoint):
+        slot_num, checkpoint_proof = checkpoint
+        if is_tail:
+            delete_history(slot_num)
+            latest_checkpoint = (checkpoint_data[slot_num], checkpoint)
+            receiver = 'replica' + str(replica_id - 1)
+            checkpoint_shuttle = ('result_checkpoint', checkpoint)
+        else:
+            if direction == 'forward':
+                receiver = 'replica' + str(replica_id + 1)
+                checkpoint_shuttle = ('checkpoint', checkpoint)
+            else:
+                receiver = 'replica' + str(replica_id - 1)
+                if drop_checkpt_stmts_flag:
+                    slot_num, checkpoint_proof = checkpoint
+                    faulty_checkpoint_proof = deepcopy(checkpoint_proof)
+                    for i in range(quorum):
+                        faulty_checkpoint_proof.remove(checkpoint_proof[i])
+                    checkpoint = (slot_num, faulty_checkpoint_proof)
+                    logger.debug('FAULT INJECTION: DROP CHECKPOINT STATEMENTS')
+                checkpoint_shuttle = ('result_checkpoint', checkpoint)
+        logger.info('sending checkpoint shuttle to %s ', receiver)
+        send(checkpoint_shuttle, to=configuration[receiver])
+        logger.info('message sent %s ', checkpoint_shuttle)
+
+    def build_signed_checkpoint_statement(cryptographic_hash_of_running_state):
+        logger.debug('building signed checkpoint statement')
+        checkpoint_statement = (
+            'checkpoint',
+            cryptographic_hash_of_running_state)
+        signed_statement = pickle_sign_statement(checkpoint_statement)
+        return signed_statement
+
+    def get_hashed_running_state(running_state=None):
+        HASHER = nacl.hash.sha256
+        if running_state:
+            rs_bytes = pickle.dumps(running_state)
+            digest = HASHER(rs_bytes, encoder=nacl.encoding.HexEncoder)
+            logger.info(
+                'running state: %s\n cryptographic hash' +
+                ' of the running state: %s',
+                running_state,
+                digest)
+        else:
+            rs_bytes = pickle.dumps(data)
+            digest = HASHER(rs_bytes, encoder=nacl.encoding.HexEncoder)
+            logger.info(
+                'running state: %s\n cryptographic hash of the running state: %s',
+                data,
+                digest)
+        return digest
+
+    def receive(msg=('result_checkpoint', checkpt)):
+        if mode != 'ACTIVE':
+            logger.warning(
+                'Replica is IMMUTABLE. Cannot process' +
+                ' recieved result checkpoint shuttle')
+            return
+        completed_checkpoint_number += 1
+        check_completed_checkpoint_failure(completed_checkpoint_number)
+        if drop_request:
+            logger.info(
+                'dropping the completed checkpoint shuttle' +
+                ' received from successor replica')
+            drop_request = False
+            return
+        logger.info(
+            'result checkpoint shuttle received from successor replica: %s',
+            checkpt)
+        slot_num, checkpoint_proof = checkpt
+        logger.info(
+            'validating checkpoint proofs for slot number: %s',
+            slot_num)
+        cryptographic_hash_of_running_state = get_hashed_running_state(
+            checkpoint_data[slot_num])
+        isValid = validate_checkpoint_proof(
+            checkpoint_proof, cryptographic_hash_of_running_state)
+        if isValid:
+            delete_history(slot_num)
+            latest_checkpoint = (checkpoint_data[slot_num], checkpt)
+            if not is_head:
+                forward_checkpoint_shuttle('backward', checkpt)
+        else:
+            logger.warning(
+                'Checkpoint proof validation failed.' +
+                ' Requesting reconfiguration')
+            request_for_reconfiguration()
+            return
+
+    def check_completed_checkpoint_failure(m):
+        completed_chkpt_str = 'completed_checkpoint(' + str(m) + ')'
+        set_failure_flags(completed_chkpt_str)
+
+    # check for proper signing and hashed value of running state of replicas
+    def validate_checkpoint_proof(
+            checkpoint_proof,
+            cryptographic_hash_of_running_state):
+        logger.info('validating checkpoint proof')
+        unpickled_checkpoint_statements = get_unpickled_checkpoint_statements(
+            checkpoint_proof)
+        if unpickled_checkpoint_statements:
+            for i in range(len(checkpoint_proof)):
+                if unpickled_checkpoint_statements[i][1] != cryptographic_hash_of_running_state:
+                    logger.info(                        
+                        "validation failed. Cryptographics hashs are %s %s",
+                        unpickled_checkpoint_statements[i][1],
+                        cryptographic_hash_of_running_state)
+                    return False
+            return True
+
+    # retrive plaintext checkpoint statements
+    def get_unpickled_checkpoint_statements(checkpoint_proof):
+        logger.info('unpickling checkpoint statement')
+        unpickled_checkpoint_statements = []
+        for i in range(len(checkpoint_proof)):
+            checkpoint_statement = checkpoint_proof[i]
+            replica_verify_key = public_keys[i]
+            try:
+                verified_checkpoint_statement = replica_verify_key.verify(
+                    checkpoint_statement)
+                unpickled_checkpoint_statement = pickle.loads(
+                    verified_checkpoint_statement)
+                unpickled_checkpoint_statements.append(
+                    unpickled_checkpoint_statement)
+            except BaseException:
+                exc_type, exc_value, exc_traceback = sys.exc_info()
+                logger.error(
+                    'Exception occurred in validation' +
+                    ' of result statement %s.\n' +
+                    ' Type: %s\n Value: %s\n Trace: %s',
+                    checkpoint_statement,
+                    exc_type,
+                    exc_value,
+                    exc_traceback)
+                return False
+        return unpickled_checkpoint_statements
+
+    def delete_history(slot_num):
+        del_history = []
+
+        logger.info('history before deletion: ', history)
+        for key, value in history.items():
+            order_proof, signed_client_request = value
+            if order_proof[0] <= slot_num:
+                del_history.append(key)
+        for i in range(len(del_history)):
+            del history[del_history[i]]
+        logger.info(
+            'History upto slot number %s deleted successfully',
+            slot_num)
+
+        logger.info('history after deletion: %s ', history)
+
+    def receive(msg=('catch_up', signed_catch_up_hist), from_=olympus):
+        logger.info('received catch up from olympus')
+        catch_up_number += 1
+        check_failure_trigger_catch_up(catch_up_number)
+        if drop_request:
+            logger.debug(
+                'FAULT INJECTION: DROP for catch' +
+                'up message received from olympus')
+            drop_request = False
+            return
+        verified_catch_up_hist = olympus_verify_key.verify(
+            signed_catch_up_hist)
+        unpickled_catch_up_hist = pickle.loads(verified_catch_up_hist)
+
+        logger.info('unpickled_catch_up_hist : %s', unpickled_catch_up_hist)
+        process_catch_up_operations(unpickled_catch_up_hist)
+
+    def check_failure_trigger_catch_up(m):
+        catch_up_str = 'catch_up(' + str(m) + ')'
+        set_failure_flags(catch_up_str)
+
+    def process_catch_up_operations(catch_up_hist):
+        logger.info('processing catch up messages : %s ', catch_up_hist)
+        running_state_copy = copy.deepcopy(data)
+
+        latest_result_stmts_copy = copy.deepcopy(latest_result_stmts)
+        for key, value in catch_up_hist.items():
+            operation = value[0][1]
+            result = perform_operation(operation, running_state_copy)
+            cryptographic_hash_of_result = get_hashed_result(result)
+            result_statement = build_signed_result_statement(
+                operation, cryptographic_hash_of_result)
+            latest_result_stmts_copy[key[0]] = (
+                result, result_statement, key[1])
+
+        cryptographic_hash_of_running_state_copy = get_hashed_running_state(
+            running_state_copy)
+        logger.info('sending caught message to olympus: %s %s ',
+                    running_state_copy, latest_result_stmts_copy)
+        send_caught_up_message(
+            cryptographic_hash_of_running_state_copy,
+            latest_result_stmts_copy)
+
+    def send_caught_up_message(hash_of_rs, latest_res_stmts):
+        signed_caught_up_message = pickle_sign_statement(
+            (replica_id, hash_of_rs, latest_res_stmts))
+        send(('caught_up', signed_caught_up_message), to=olympus)
+
+        logger.info('caught up message sent to olympus : %s ',
+                    ('caught_up', signed_caught_up_message))
+
+    def receive(
+            msg=(
+                'init_setup',
+                config,
+                private_key_hex,
+                public_keys_hex,
+                olympus_public_key_hex,
+                client_keys,
+                consistent_checkpoint_sn,
+                longest_history,
+                running_state,
+                t),
+            from_=olympus):
+        logger.info(
+            'init_setup message received from Olympus: %s',
+            ('init_setup',
+             config,
+             private_key_hex,
+             public_keys_hex,
+             olympus_public_key_hex,
+             client_keys,
+             consistent_checkpoint_sn,
+             longest_history,
+             running_state,
+             ))
+        check_failure_trigger_init_setup()
+        if drop_request:
+            logger.debug(
+                'FAULT INJECTION: Dropping Init setup message from olympus')
+            drop_request = False
+            return
+        test = t
+        configuration = config
+        # save this replicas signing key
+        private_key = nacl.signing.SigningKey(
+            private_key_hex, encoder=nacl.encoding.HexEncoder)
+        for key in public_keys_hex:  # save verify keys of all replicas
+            public_key = nacl.signing.VerifyKey(
+                key, encoder=nacl.encoding.HexEncoder)
+            public_keys.append(public_key)
+        olympus_verify_key = nacl.signing.VerifyKey(
+            olympus_public_key_hex, encoder=nacl.encoding.HexEncoder)
+        get_client_keys(client_keys)
+        checkpt_sn = consistent_checkpoint_sn
+        data = running_state
+        if longest_history or checkpt_sn:
+            prev_slot_num = get_slot_num(longest_history, checkpt_sn)
+            slot_number = prev_slot_num
+        history = longest_history
+
+        logger.info(
+            'client_req_shuttle_number is %s',
+            client_req_shuttle_number)
+
+        logger.info('init setup completed successfully')
+        mode = 'ACTIVE'
+
+    def check_failure_trigger_init_setup():
+        init_setup_str = 'new_configuration(0)'
+        set_failure_flags(init_setup_str)
+
+    def get_client_keys(client_keys):
+        for c in client_keys.keys():
+            clients_public_key[c] = nacl.signing.VerifyKey(
+                client_keys[c], encoder=nacl.encoding.HexEncoder)
+
+    def get_slot_num(longest_history, checkpt_sn):
+        if not longest_history and checkpt_sn:
+            return checkpt_sn
+        sn = -1
+        for k, v in longest_history.items():
+            if v[0][0] > sn:
+                sn = v[0][0]
+        return sn
+
+    def receive(msg=('test'), from_=oly):
+        send(('test_resp', test), to=oly)
+
+    def receive(msg=('get_init_running_state')):
+        logger.info('received request for running state from olympus')
+
+        running_status_request_number += 1
+
+        check_get_running_state_failure_trigger(running_status_request_number)
+        if drop_request:
+
+            logger.info('dropping the get running state request from olympus')
+            drop_request = False
+            return
+
+        data_to_send = (running_state_copy)
+        signed_rs = pickle_sign_statement(data_to_send)
+        send(('init_running_state', signed_rs,), to=olympus)
+        logger.info(
+            'Message sent: %s ',
+            ('init_running_state',
+             running_state_copy))

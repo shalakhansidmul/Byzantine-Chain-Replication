@@ -1,0 +1,38 @@
+# replicas 0 and 1 send truncated histories in wedged statements.  this leads to
+# inconsistency between the hashes of their running states and the running state of
+# replica 2 after catch-up.  olympus then needs to select a different quorum.
+# scott stoller, 2017-11-28
+
+# EXPECTED BEHAVIOR
+
+#client sends requests r0,r1,r2 to config0.  client receives results for r0,r1.
+#replica 1 has drop_result_stmt failure for r2, so replicas 2,3,4 do not execute it.
+#config0 does not send result for r2.  this leads to reconfig.
+#replicas 3,4 sleep on receiving wedge_request, so olympus creates a quorum
+#containing replicas 0,1,2.
+#in caught_up messages, the hashes from replicas 0,1 reflect effect of r2,
+#and the hash from replica 2 does not, so olympus needs to select another quorum.
+#the only quorum that allows successful reconfig contains replicas 2,3,4.
+#none of them have executed r2, so olympus does not send result for it.
+#client re-sends r2 to config1 and receives result.
+
+test_case_name = truncate_history
+t = 2
+num_client = 1
+
+# timeouts, in milliseconds.  you may change them.
+head_timeout = 3000
+nonhead_timeout = 3000
+
+# checkpoint interval.
+checkpt_interval = 9
+
+# CLIENT WORKLOAD
+workload[0] = put('k','r0'); append('k','r1'); append('k','r2'); get('k')
+
+# FAILURE SCENARIO
+# failures[c,r] is the failure scenario for replica r in configuration c.
+failures[0,0] = wedge_request(0),truncate_history(1)
+failures[0,1] = shuttle(0,2),change_operation(); wedge_request(0),truncate_history(1)
+failures[0,3] = wedge_request(0),sleep(2000)
+failures[0,4] = wedge_request(0),sleep(2000)

@@ -1,0 +1,191 @@
+2017-11-22 17:20:37,941 - Client0 - INFO - Client setup completed
+2017-11-22 17:20:37,941 - Client0 - INFO - initial settings: client ID : 0 
+ workload : put('movie','star'); get('movie');append('movie',' wars');get('movie');get('movie');
+2017-11-22 17:20:37,944 - Client0 - INFO - valid operations : ["put('movie','star')", "get('movie')", "append('movie',' wars')", "get('movie')", "get('movie')"]
+2017-11-22 17:20:37,944 - Client0 - DEBUG - data: OrderedDict([('movie', 'star')]) operation: put('movie','star') result: OK 
+2017-11-22 17:20:37,944 - Client0 - INFO - building signed request for request id: 0 and operation: put('movie','star')
+2017-11-22 17:20:37,957 - Client0 - INFO - requesting configuration from olympus : 
+ message sent: ('request_configuration', <Client:4b002#ClientNode0>, 0)
+2017-11-22 17:20:37,960 - Client0 - INFO - configuration received from olympus: OrderedDict([('replica0', {<Replica:fd002#ReplicaNode0>}), ('replica1', {<Replica:c1002#ReplicaNode1>}), ('replica2', {<Replica:ad002#ReplicaNode2>})])
+2017-11-22 17:20:37,961 - Client0 - INFO - handshake not performed. sending public key to olympus.
+2017-11-22 17:20:37,961 - Client0 - INFO - sent public key to olympus. 
+ message sent: ('client_public_key', 0, <Client:4b002#ClientNode0>, b'e000d3db84051e6ea6499a6054dedb3bfbce12380fa1b145868758e455a6a6ea')
+2017-11-22 17:20:37,967 - Client0 - INFO - public keys received for 3 replicas in current configuration
+2017-11-22 17:20:37,967 - Client0 - INFO - handshake completed
+2017-11-22 17:20:37,968 - Client0 - INFO - request with request id 0 sent to head:
+2017-11-22 17:20:37,987 - Client0 - INFO - response received for request id: 0 from: <Replica:ad002#ReplicaNode2> 
+response: (('OK',), ["put('movie','star')", ('OK',), OrderedDict([('replica0', {<Replica:fd002#ReplicaNode0>}), ('replica1', {<Replica:c1002#ReplicaNode1>}), ('replica2', {<Replica:ad002#ReplicaNode2>})]), [b'Ft\xa3\xc1!\x88\x1f\xd2\xbe\xba\t[\xf6\xaa\xa4_\xc4\x91%\x17\xfb\xe8\xad\xd0.\xa8\xe7\x11\x9e"\xd4\xe7\xf6\xf7\xff\x1eX1`:\x18\xd9W\xfb\x87\xc6\xd7\x9b\x18\xe7\x1b\x06\xf4Xv\x9b\xfa8\xf2V\xfa\xaf\xf2\x02\x80\x03X\x06\x00\x00\x00resultq\x00X\x13\x00\x00\x00put(\'movie\',\'star\')q\x01C@ce267bb49f34379eaa4617729b7f3611fdd2f8495027b9f73ad63d505c8e56a1q\x02\x87q\x03.', b'=\xff~\xb4\xa6\xa6\xden\xe9\xf7T\x83Ri\xabLy\xe8\xc0\xc3p]\x92#\xc6Dg\x8f\xf1=R\xfb\xbe\xc6o\xd1\x9bD\xbc\x070\xab\xdf\x0f\xde\x8b\x92\x13"\xf5\x9c\xba\xfb\'\xcf#a\xc9\xe0\xf1%f+\x06\x80\x03X\x06\x00\x00\x00resultq\x00X\x13\x00\x00\x00put(\'movie\',\'star\')q\x01C@ce267bb49f34379eaa4617729b7f3611fdd2f8495027b9f73ad63d505c8e56a1q\x02\x87q\x03.', b"\xcf\xc3\xe4\x05\xd2=\xe0\xa8;\x1cB\x10\xbe9U\x8e\x0cw\xc7n\xaf\xca\xc0,\x04\x14\xc2\xdd\xaao\x0f\xfa\xb7\xc9\xa6\x02\xe9\xae\x1f\xad\xd6\xc7\xe1\xc7o4\x9a\xc4\xaf\xa3\x8dR\xb7,\xf6l_Tf\x19\xd0\x971\x08\x80\x03X\x06\x00\x00\x00resultq\x00X\x13\x00\x00\x00put('movie','star')q\x01C@ce267bb49f34379eaa4617729b7f3611fdd2f8495027b9f73ad63d505c8e56a1q\x02\x87q\x03."]]) 
+2017-11-22 17:20:37,987 - Client0 - DEBUG - checking if received result for request_id 0 can be accepted
+2017-11-22 17:20:37,988 - Client0 - INFO - received result : ('OK',) 
+crptpgraphic hash of the result: b'ce267bb49f34379eaa4617729b7f3611fdd2f8495027b9f73ad63d505c8e56a1'
+2017-11-22 17:20:37,988 - Client0 - INFO - validating result statement of replica 0
+2017-11-22 17:20:37,989 - Client0 - INFO - validating result statement of replica 1
+2017-11-22 17:20:37,989 - Client0 - INFO - validating result statement of replica 2
+2017-11-22 17:20:37,990 - Client0 - DEBUG - valid result received for request_id 0
+2017-11-22 17:20:37,991 - Client0 - DEBUG - Accepting result: ('OK',)  for request id: 0 
+2017-11-22 17:20:37,991 - Client0 - INFO - deleting the request id 0 from pending operations OrderedDict()
+2017-11-22 17:20:37,991 - Client0 - DEBUG - data: OrderedDict([('movie', 'star')]) operation: get('movie') result: star 
+2017-11-22 17:20:37,991 - Client0 - INFO - building signed request for request id: 1 and operation: get('movie')
+2017-11-22 17:20:37,992 - Client0 - INFO - requesting configuration from olympus : 
+ message sent: ('request_configuration', <Client:4b002#ClientNode0>, 0)
+2017-11-22 17:20:37,995 - Client0 - INFO - configuration received from olympus: OrderedDict([('replica0', {<Replica:fd002#ReplicaNode0>}), ('replica1', {<Replica:c1002#ReplicaNode1>}), ('replica2', {<Replica:ad002#ReplicaNode2>})])
+2017-11-22 17:20:37,995 - Client0 - INFO - request with request id 1 sent to head:
+2017-11-22 17:20:38,012 - Client0 - INFO - response received for request id: 1 from: <Replica:ad002#ReplicaNode2> 
+response: (('star',), ["get('movie')", ('star',), OrderedDict([('replica0', {<Replica:fd002#ReplicaNode0>}), ('replica1', {<Replica:c1002#ReplicaNode1>}), ('replica2', {<Replica:ad002#ReplicaNode2>})]), [b'\xea\xc4\xac\xeeF\x9f8\xe1\x12P\r:\xf37\x06\xb6\x02}\xe5q\xe4I\x0b\x85\x98\xdeu\xca\xbb\x18y\xfc\xb6\xf8\x9c\x1ej")H\xd2\xec\xccGta\xfa*\xe9B\xe1M\xb9\xb5\xb1\xf4wO\xd0h\xc66\'\x00\x80\x03X\x06\x00\x00\x00resultq\x00X\x0c\x00\x00\x00get(\'movie\')q\x01C@3d071347613c7c4bc0794d94a2f14f88d16c57e695b0767c8637ad120b00b7d8q\x02\x87q\x03.', b"\xa4\xf6/\xa6\x98\x1fr\xee_)\x19GM\xb3\x8d\x85\x98I\x82\x9d\xee\xe9g\xcf\xad\xe4\x154RD\x08\xf2\x0e\xda\xb7\xb5\x10+\xab\xda/\xee\x850\xa7\xfe\xe7\xe2X{\xa2e\x9f\xaeWnU\xb4\x93kx\xc3C\x03\x80\x03X\x06\x00\x00\x00resultq\x00X\x0c\x00\x00\x00get('movie')q\x01C@3d071347613c7c4bc0794d94a2f14f88d16c57e695b0767c8637ad120b00b7d8q\x02\x87q\x03.", b"v\x06m\x89#gb\x7f\xa1\r\xa5\xd9\xd2+I\xfc\xab\xccd\xf6<&\xf0\xd5=\x0f\x87\n\xac\xe7_\xda\xa9/b0\x15\xdeH\xc6\x1d\x17s\x07\x95\x9as.\xf0 4K+\x97\xf3\x1cL\x08\xe8\xce\xdb\xcba\x08\x80\x03X\x06\x00\x00\x00resultq\x00X\x0c\x00\x00\x00get('movie')q\x01C@3d071347613c7c4bc0794d94a2f14f88d16c57e695b0767c8637ad120b00b7d8q\x02\x87q\x03."]]) 
+2017-11-22 17:20:38,012 - Client0 - DEBUG - checking if received result for request_id 1 can be accepted
+2017-11-22 17:20:38,012 - Client0 - INFO - received result : ('star',) 
+crptpgraphic hash of the result: b'3d071347613c7c4bc0794d94a2f14f88d16c57e695b0767c8637ad120b00b7d8'
+2017-11-22 17:20:38,012 - Client0 - INFO - validating result statement of replica 0
+2017-11-22 17:20:38,013 - Client0 - INFO - validating result statement of replica 1
+2017-11-22 17:20:38,014 - Client0 - INFO - validating result statement of replica 2
+2017-11-22 17:20:38,015 - Client0 - DEBUG - valid result received for request_id 1
+2017-11-22 17:20:38,015 - Client0 - DEBUG - Accepting result: ('star',)  for request id: 1 
+2017-11-22 17:20:38,016 - Client0 - INFO - deleting the request id 1 from pending operations OrderedDict()
+2017-11-22 17:20:38,016 - Client0 - DEBUG - data: OrderedDict([('movie', 'star wars')]) operation: append('movie',' wars') result: OK 
+2017-11-22 17:20:38,016 - Client0 - INFO - building signed request for request id: 2 and operation: append('movie',' wars')
+2017-11-22 17:20:38,017 - Client0 - INFO - requesting configuration from olympus : 
+ message sent: ('request_configuration', <Client:4b002#ClientNode0>, 0)
+2017-11-22 17:20:38,019 - Client0 - INFO - configuration received from olympus: OrderedDict([('replica0', {<Replica:fd002#ReplicaNode0>}), ('replica1', {<Replica:c1002#ReplicaNode1>}), ('replica2', {<Replica:ad002#ReplicaNode2>})])
+2017-11-22 17:20:38,020 - Client0 - INFO - request with request id 2 sent to head:
+2017-11-22 17:20:38,037 - Client0 - INFO - response received for request id: 2 from: <Replica:ad002#ReplicaNode2> 
+response: (('OK',), ["append('movie',' wars')", ('OK',), OrderedDict([('replica0', {<Replica:fd002#ReplicaNode0>}), ('replica1', {<Replica:c1002#ReplicaNode1>}), ('replica2', {<Replica:ad002#ReplicaNode2>})]), [b"\xd4\xd9\xa2m\xcau\xfe\xefD\xd2S\xd8MZ=\xc2>\xe5\xa1\x1b\xc2\x91\xf7R\x12\xcb\x11e@\xaf\x99rT5\x1f\xc9O7O\xf2\xda\xedJ\xde\xffSe\x1e\x0e?<w\xd7\x9f\xd1\x10z\x12;\xaf}\x84\xf3\t\x80\x03X\x06\x00\x00\x00resultq\x00X\x17\x00\x00\x00append('movie',' wars')q\x01C@ce267bb49f34379eaa4617729b7f3611fdd2f8495027b9f73ad63d505c8e56a1q\x02\x87q\x03.", b'\xbd\xd2\xdf\xbc\x1c\x90\x82\xe0&\xa6\xe00\xe5\x0f(\xe7\xa4\xda\xaf\x95\r\x97\xe8\x07\x80\xe1\xcfx\x10Q"4J!\x13,V\xb0`\xa2\x89\xb2\xba\x10\xd2lZ!\x82GB\xa1~\xc5\xc4\x1aTf\x93\xab\xcc\xac\x90\r\x80\x03X\x06\x00\x00\x00resultq\x00X\x17\x00\x00\x00append(\'movie\',\' wars\')q\x01C@ce267bb49f34379eaa4617729b7f3611fdd2f8495027b9f73ad63d505c8e56a1q\x02\x87q\x03.', b"\xc6\xe7*\xe0\xfcP\xdff\x14\xcc\x1e\xcc\x9c\x9d\xa9\xa4\x857\xc2\xd2\x1e4\xcb\xad\x9e\x10\x9b\xd9W;\xa3u\xf9\x17\x8b\x05\xf6H\x89#\x186\xd2\xae\xe8\xe1a\xd8\x8a\xd3\x8a\xefZ]\x04\x9b8\xeb\x08:\xd5`?\x06\x80\x03X\x06\x00\x00\x00resultq\x00X\x17\x00\x00\x00append('movie',' wars')q\x01C@ce267bb49f34379eaa4617729b7f3611fdd2f8495027b9f73ad63d505c8e56a1q\x02\x87q\x03."]]) 
+2017-11-22 17:20:38,037 - Client0 - DEBUG - checking if received result for request_id 2 can be accepted
+2017-11-22 17:20:38,037 - Client0 - INFO - received result : ('OK',) 
+crptpgraphic hash of the result: b'ce267bb49f34379eaa4617729b7f3611fdd2f8495027b9f73ad63d505c8e56a1'
+2017-11-22 17:20:38,037 - Client0 - INFO - validating result statement of replica 0
+2017-11-22 17:20:38,038 - Client0 - INFO - validating result statement of replica 1
+2017-11-22 17:20:38,038 - Client0 - INFO - validating result statement of replica 2
+2017-11-22 17:20:38,039 - Client0 - DEBUG - valid result received for request_id 2
+2017-11-22 17:20:38,039 - Client0 - DEBUG - Accepting result: ('OK',)  for request id: 2 
+2017-11-22 17:20:38,039 - Client0 - INFO - deleting the request id 2 from pending operations OrderedDict()
+2017-11-22 17:20:38,039 - Client0 - DEBUG - data: OrderedDict([('movie', 'star wars')]) operation: get('movie') result: star wars 
+2017-11-22 17:20:38,039 - Client0 - INFO - building signed request for request id: 3 and operation: get('movie')
+2017-11-22 17:20:38,040 - Client0 - INFO - requesting configuration from olympus : 
+ message sent: ('request_configuration', <Client:4b002#ClientNode0>, 0)
+2017-11-22 17:20:38,043 - Client0 - INFO - configuration received from olympus: OrderedDict([('replica0', {<Replica:fd002#ReplicaNode0>}), ('replica1', {<Replica:c1002#ReplicaNode1>}), ('replica2', {<Replica:ad002#ReplicaNode2>})])
+2017-11-22 17:20:38,044 - Client0 - INFO - request with request id 3 sent to head:
+2017-11-22 17:20:38,068 - Client0 - INFO - response received for request id: 3 from: <Replica:ad002#ReplicaNode2> 
+response: (('star wars',), ["get('movie')", ('star wars',), OrderedDict([('replica0', {<Replica:fd002#ReplicaNode0>}), ('replica1', {<Replica:c1002#ReplicaNode1>}), ('replica2', {<Replica:ad002#ReplicaNode2>})]), [b"\xba\xbe2\xdb\xeev\xda\xe12@\xdc\x83x\x10\x80a\xe6\xa6\xdb\xc45\xdf\xf0k\x17\x9e\xbc{\xf4<K\xfc\x15\xac\x1a\xc6*lE\xdbx\xf9>&\x0b\x0bn\nZ\xbeT\x17m=\x90\x18\xad\xa1r\x0f\xb8nX\x0e\x80\x03X\x06\x00\x00\x00resultq\x00X\x0c\x00\x00\x00get('movie')q\x01C@a76bfd2df2d745c34af08fdfe5cf57b5ea611367d136f24dd8d4f84756b86026q\x02\x87q\x03.", b'\x97\x05\x11?\x7fK(\xc0h\xc4\x84\xce\x05_`\x00\x9b\xf1#B\xf7\xa6q`\x1d[\x1cC\xb9\xea\xe2\x1dJ\xa55l\xa2\xc5g\xce\x90\xd7\x01%9\xb0\xe3\xec\xf4\xc6XU\xa4X\x89"/\x96bg\x9f\x0e^\x0e\x80\x03X\x06\x00\x00\x00resultq\x00X\x0c\x00\x00\x00get(\'movie\')q\x01C@a76bfd2df2d745c34af08fdfe5cf57b5ea611367d136f24dd8d4f84756b86026q\x02\x87q\x03.', b"\x97\x85K\xc5\xc3\xabN1ng|B\xa8\xa3\xad\xa9\x15=\xcdxC\x06vY$~\xaa\xbc\xf2\xa3\xe4\x00\xc7y6\xada\xf2Tw\xceq\xe1\xdas\xca\x08\x01\x9f\x9b\x8c\xb6=\x8d=b\xadF\xae4\x03\x16i\x05\x80\x03X\x06\x00\x00\x00resultq\x00X\x0c\x00\x00\x00get('movie')q\x01C@a76bfd2df2d745c34af08fdfe5cf57b5ea611367d136f24dd8d4f84756b86026q\x02\x87q\x03."]]) 
+2017-11-22 17:20:38,068 - Client0 - DEBUG - checking if received result for request_id 3 can be accepted
+2017-11-22 17:20:38,068 - Client0 - INFO - received result : ('star wars',) 
+crptpgraphic hash of the result: b'a76bfd2df2d745c34af08fdfe5cf57b5ea611367d136f24dd8d4f84756b86026'
+2017-11-22 17:20:38,068 - Client0 - INFO - validating result statement of replica 0
+2017-11-22 17:20:38,069 - Client0 - INFO - validating result statement of replica 1
+2017-11-22 17:20:38,070 - Client0 - INFO - validating result statement of replica 2
+2017-11-22 17:20:38,071 - Client0 - DEBUG - valid result received for request_id 3
+2017-11-22 17:20:38,071 - Client0 - DEBUG - Accepting result: ('star wars',)  for request id: 3 
+2017-11-22 17:20:38,072 - Client0 - INFO - deleting the request id 3 from pending operations OrderedDict()
+2017-11-22 17:20:38,072 - Client0 - DEBUG - data: OrderedDict([('movie', 'star wars')]) operation: get('movie') result: star wars 
+2017-11-22 17:20:38,072 - Client0 - INFO - building signed request for request id: 4 and operation: get('movie')
+2017-11-22 17:20:38,073 - Client0 - INFO - requesting configuration from olympus : 
+ message sent: ('request_configuration', <Client:4b002#ClientNode0>, 0)
+2017-11-22 17:20:38,075 - Client0 - INFO - configuration received from olympus: OrderedDict([('replica0', {<Replica:fd002#ReplicaNode0>}), ('replica1', {<Replica:c1002#ReplicaNode1>}), ('replica2', {<Replica:ad002#ReplicaNode2>})])
+2017-11-22 17:20:38,076 - Client0 - INFO - request with request id 4 sent to head:
+2017-11-22 17:20:38,093 - Client0 - INFO - response received for request id: 4 from: <Replica:ad002#ReplicaNode2> 
+response: (('star wars',), ["get('movie')", ('star wars',), OrderedDict([('replica0', {<Replica:fd002#ReplicaNode0>}), ('replica1', {<Replica:c1002#ReplicaNode1>}), ('replica2', {<Replica:ad002#ReplicaNode2>})]), [b"\xba\xbe2\xdb\xeev\xda\xe12@\xdc\x83x\x10\x80a\xe6\xa6\xdb\xc45\xdf\xf0k\x17\x9e\xbc{\xf4<K\xfc\x15\xac\x1a\xc6*lE\xdbx\xf9>&\x0b\x0bn\nZ\xbeT\x17m=\x90\x18\xad\xa1r\x0f\xb8nX\x0e\x80\x03X\x06\x00\x00\x00resultq\x00X\x0c\x00\x00\x00get('movie')q\x01C@a76bfd2df2d745c34af08fdfe5cf57b5ea611367d136f24dd8d4f84756b86026q\x02\x87q\x03.", b'\x97\x05\x11?\x7fK(\xc0h\xc4\x84\xce\x05_`\x00\x9b\xf1#B\xf7\xa6q`\x1d[\x1cC\xb9\xea\xe2\x1dJ\xa55l\xa2\xc5g\xce\x90\xd7\x01%9\xb0\xe3\xec\xf4\xc6XU\xa4X\x89"/\x96bg\x9f\x0e^\x0e\x80\x03X\x06\x00\x00\x00resultq\x00X\x0c\x00\x00\x00get(\'movie\')q\x01C@a76bfd2df2d745c34af08fdfe5cf57b5ea611367d136f24dd8d4f84756b86026q\x02\x87q\x03.', b"\x97\x85K\xc5\xc3\xabN1ng|B\xa8\xa3\xad\xa9\x15=\xcdxC\x06vY$~\xaa\xbc\xf2\xa3\xe4\x00\xc7y6\xada\xf2Tw\xceq\xe1\xdas\xca\x08\x01\x9f\x9b\x8c\xb6=\x8d=b\xadF\xae4\x03\x16i\x05\x80\x03X\x06\x00\x00\x00resultq\x00X\x0c\x00\x00\x00get('movie')q\x01C@a76bfd2df2d745c34af08fdfe5cf57b5ea611367d136f24dd8d4f84756b86026q\x02\x87q\x03."]]) 
+2017-11-22 17:20:38,094 - Client0 - DEBUG - checking if received result for request_id 4 can be accepted
+2017-11-22 17:20:38,094 - Client0 - INFO - received result : ('star wars',) 
+crptpgraphic hash of the result: b'a76bfd2df2d745c34af08fdfe5cf57b5ea611367d136f24dd8d4f84756b86026'
+2017-11-22 17:20:38,094 - Client0 - INFO - validating result statement of replica 0
+2017-11-22 17:20:38,095 - Client0 - INFO - validating result statement of replica 1
+2017-11-22 17:20:38,096 - Client0 - INFO - validating result statement of replica 2
+2017-11-22 17:20:38,096 - Client0 - DEBUG - valid result received for request_id 4
+2017-11-22 17:20:38,097 - Client0 - DEBUG - Accepting result: ('star wars',)  for request id: 4 
+2017-11-22 17:20:38,097 - Client0 - INFO - deleting the request id 4 from pending operations OrderedDict()
+2017-11-22 17:20:38,097 - Client0 - INFO - all operations executed. sending DONE message to olympus
+2017-11-22 17:20:38,098 - Client0 - INFO - Message sent: done
+2017-11-22 17:20:38,099 - Client0 - INFO - Final state of the client: OrderedDict([('movie', 'star wars')])
+2017-11-22 17:21:12,786 - Client0 - INFO - Client setup completed
+2017-11-22 17:21:12,786 - Client0 - INFO - initial settings: client ID : 0 
+ workload : put('movie','star'); get('movie');append('movie',' wars');get('movie');get('movie');
+2017-11-22 17:21:12,788 - Client0 - INFO - valid operations : ["put('movie','star')", "get('movie')", "append('movie',' wars')", "get('movie')", "get('movie')"]
+2017-11-22 17:21:12,788 - Client0 - DEBUG - data: OrderedDict([('movie', 'star')]) operation: put('movie','star') result: OK 
+2017-11-22 17:21:12,789 - Client0 - INFO - building signed request for request id: 0 and operation: put('movie','star')
+2017-11-22 17:21:12,790 - Client0 - INFO - requesting configuration from olympus : 
+ message sent: ('request_configuration', <Client:5f002#ClientNode0>, 0)
+2017-11-22 17:21:12,792 - Client0 - INFO - configuration received from olympus: OrderedDict([('replica0', {<Replica:57002#ReplicaNode0>}), ('replica1', {<Replica:19002#ReplicaNode1>}), ('replica2', {<Replica:61002#ReplicaNode2>})])
+2017-11-22 17:21:12,792 - Client0 - INFO - handshake not performed. sending public key to olympus.
+2017-11-22 17:21:12,792 - Client0 - INFO - sent public key to olympus. 
+ message sent: ('client_public_key', 0, <Client:5f002#ClientNode0>, b'97627f4f7620f8ce58845661f1097cd5e89a58aeb3cf4ea9b6bbf2078072c287')
+2017-11-22 17:21:12,797 - Client0 - INFO - public keys received for 3 replicas in current configuration
+2017-11-22 17:21:12,797 - Client0 - INFO - handshake completed
+2017-11-22 17:21:12,797 - Client0 - INFO - request with request id 0 sent to head:
+2017-11-22 17:21:12,822 - Client0 - INFO - response received for request id: 0 from: <Replica:61002#ReplicaNode2> 
+response: (('OK',), ["put('movie','star')", ('OK',), OrderedDict([('replica0', {<Replica:57002#ReplicaNode0>}), ('replica1', {<Replica:19002#ReplicaNode1>}), ('replica2', {<Replica:61002#ReplicaNode2>})]), [b"\x05\x1d\xbe|\x0e\xbc\x85\x017\x90V\xee\x8d\xb6\xd7\xcc\x97}\x19M\x03\x15\x81)G\xc5\x82\xfb\xfc\xddfq\x1c\x1c!\xc0\xc8V\x9d\x9a*\xeaP\xa7\x99v\xafV\xfe\xd3z6\x01\x98\xad\x80R\x92 7\xa5<\x7f\x0f\x80\x03X\x06\x00\x00\x00resultq\x00X\x13\x00\x00\x00put('movie','star')q\x01C@ce267bb49f34379eaa4617729b7f3611fdd2f8495027b9f73ad63d505c8e56a1q\x02\x87q\x03.", b"\xde\x08E\x04\x84!G\xcd\x8e\xb6\xb5\xf9\xafsB\x9c\xcf\x1b\xcb\t\xce\xe50\xb2\tA\x165t\x1dv^\xd6\xf1\x95Z\x15\xbfZ\xc8\xd1\x13`2\x8b6\x1c\xe6adF\xef\xa3n\x11\x0c\xecg\xe9\x8f\x0bj|\x04\x80\x03X\x06\x00\x00\x00resultq\x00X\x13\x00\x00\x00put('movie','star')q\x01C@ce267bb49f34379eaa4617729b7f3611fdd2f8495027b9f73ad63d505c8e56a1q\x02\x87q\x03.", b"ux\xe9\x87#h\x1f\x10{\xf2\x16\xb6\xc3\xdb\x02\x97\xa2\x00\xb9\x01Gz\xe3L\xed\xeb\x0c\xde\x9a\xc2\xd8\x1e\xf2R%\xf7\x92\xcef\x1c\xab*\xec\x9a5\xcf\x1d\x0b1\t\x92cf\xdd\xc9\x823\x05\xa8.\x98\x83\xb8\x01\x80\x03X\x06\x00\x00\x00resultq\x00X\x13\x00\x00\x00put('movie','star')q\x01C@ce267bb49f34379eaa4617729b7f3611fdd2f8495027b9f73ad63d505c8e56a1q\x02\x87q\x03."]]) 
+2017-11-22 17:21:12,823 - Client0 - DEBUG - checking if received result for request_id 0 can be accepted
+2017-11-22 17:21:12,823 - Client0 - INFO - received result : ('OK',) 
+crptpgraphic hash of the result: b'ce267bb49f34379eaa4617729b7f3611fdd2f8495027b9f73ad63d505c8e56a1'
+2017-11-22 17:21:12,823 - Client0 - INFO - validating result statement of replica 0
+2017-11-22 17:21:12,824 - Client0 - INFO - validating result statement of replica 1
+2017-11-22 17:21:12,825 - Client0 - INFO - validating result statement of replica 2
+2017-11-22 17:21:12,826 - Client0 - DEBUG - valid result received for request_id 0
+2017-11-22 17:21:12,826 - Client0 - DEBUG - Accepting result: ('OK',)  for request id: 0 
+2017-11-22 17:21:12,826 - Client0 - INFO - deleting the request id 0 from pending operations OrderedDict()
+2017-11-22 17:21:12,828 - Client0 - DEBUG - data: OrderedDict([('movie', 'star')]) operation: get('movie') result: star 
+2017-11-22 17:21:12,828 - Client0 - INFO - building signed request for request id: 1 and operation: get('movie')
+2017-11-22 17:21:12,829 - Client0 - INFO - requesting configuration from olympus : 
+ message sent: ('request_configuration', <Client:5f002#ClientNode0>, 0)
+2017-11-22 17:21:12,831 - Client0 - INFO - configuration received from olympus: OrderedDict([('replica0', {<Replica:57002#ReplicaNode0>}), ('replica1', {<Replica:19002#ReplicaNode1>}), ('replica2', {<Replica:61002#ReplicaNode2>})])
+2017-11-22 17:21:12,832 - Client0 - INFO - request with request id 1 sent to head:
+2017-11-22 17:21:12,855 - Client0 - INFO - response received for request id: 1 from: <Replica:61002#ReplicaNode2> 
+response: (('star',), ["get('movie')", ('star',), OrderedDict([('replica0', {<Replica:57002#ReplicaNode0>}), ('replica1', {<Replica:19002#ReplicaNode1>}), ('replica2', {<Replica:61002#ReplicaNode2>})]), [b"HK\xc9p\xea\x82\x89e|\xc6\xf2h\xd2\x1eU\xaf\x88-\x80\x9c\xe6I\x00t\x18\xc9uw\xa9t\xf6\xe7\xc1\xdfl\x03\xd8\xca\xfc!\xddT8\x85I\x99j\x7fd\xf6\\\xae\xc9\xdaX\xb9,\xf4\xb7\xcbWx\xe1\t\x80\x03X\x06\x00\x00\x00resultq\x00X\x0c\x00\x00\x00get('movie')q\x01C@3d071347613c7c4bc0794d94a2f14f88d16c57e695b0767c8637ad120b00b7d8q\x02\x87q\x03.", b'L\xd5#\xec\xcaI\xa7C1f\xe1\x0bo\xd1\x9daD\xb1\xd7:\x1f\x94B9\xe2\xf6\xe6K\xdd\xaaG\xeb\xdcC{\xce\xcd\xe6\xc7\xe5\xed\x02\xa4\x16\x93\xe2\xe6R?5\xcd.\x9c\xd6&\xdahon{\xb7"g\x0f\x80\x03X\x06\x00\x00\x00resultq\x00X\x0c\x00\x00\x00get(\'movie\')q\x01C@3d071347613c7c4bc0794d94a2f14f88d16c57e695b0767c8637ad120b00b7d8q\x02\x87q\x03.', b"\xb6\x1e8\xd8\xc0\xdf\xca=\x03D10\xc6_\x01x\xa2\x0e\x06\x93q\xe3\xe5\xb7\x97\x89z\xbe\xba\x9e\x05@\xfb\xd6<\x8a\x035*o\xcfs\xd4X\x9b\xc9\x03\x1ee\xd9Sr\x14\x16\x1a\xa9\x1bC\xb2\tt\xbc\xe3\x03\x80\x03X\x06\x00\x00\x00resultq\x00X\x0c\x00\x00\x00get('movie')q\x01C@3d071347613c7c4bc0794d94a2f14f88d16c57e695b0767c8637ad120b00b7d8q\x02\x87q\x03."]]) 
+2017-11-22 17:21:12,856 - Client0 - DEBUG - checking if received result for request_id 1 can be accepted
+2017-11-22 17:21:12,856 - Client0 - INFO - received result : ('star',) 
+crptpgraphic hash of the result: b'3d071347613c7c4bc0794d94a2f14f88d16c57e695b0767c8637ad120b00b7d8'
+2017-11-22 17:21:12,856 - Client0 - INFO - validating result statement of replica 0
+2017-11-22 17:21:12,857 - Client0 - INFO - validating result statement of replica 1
+2017-11-22 17:21:12,858 - Client0 - INFO - validating result statement of replica 2
+2017-11-22 17:21:12,859 - Client0 - DEBUG - valid result received for request_id 1
+2017-11-22 17:21:12,859 - Client0 - DEBUG - Accepting result: ('star',)  for request id: 1 
+2017-11-22 17:21:12,859 - Client0 - INFO - deleting the request id 1 from pending operations OrderedDict()
+2017-11-22 17:21:12,860 - Client0 - DEBUG - data: OrderedDict([('movie', 'star wars')]) operation: append('movie',' wars') result: OK 
+2017-11-22 17:21:12,860 - Client0 - INFO - building signed request for request id: 2 and operation: append('movie',' wars')
+2017-11-22 17:21:12,861 - Client0 - INFO - requesting configuration from olympus : 
+ message sent: ('request_configuration', <Client:5f002#ClientNode0>, 0)
+2017-11-22 17:21:12,863 - Client0 - INFO - configuration received from olympus: OrderedDict([('replica0', {<Replica:57002#ReplicaNode0>}), ('replica1', {<Replica:19002#ReplicaNode1>}), ('replica2', {<Replica:61002#ReplicaNode2>})])
+2017-11-22 17:21:12,864 - Client0 - INFO - request with request id 2 sent to head:
+2017-11-22 17:21:12,897 - Client0 - INFO - response received for request id: 2 from: <Replica:61002#ReplicaNode2> 
+response: (('OK',), ["append('movie',' wars')", ('OK',), OrderedDict([('replica0', {<Replica:57002#ReplicaNode0>}), ('replica1', {<Replica:19002#ReplicaNode1>}), ('replica2', {<Replica:61002#ReplicaNode2>})]), [b"j\xa7g\x0b(\xe6\x044\xe7h\x0f\x9b\x84\xba\xb86\xa13,\xfbZnF\t\xe6\xa42\xa3i\x893\xe4?]\xde\x8f|*\x96\x96\xc1\xc4\xdf\xdb\x06\x89\xd6\x871@\x81\x03\xaa\x90\xb3\xff\x10\x7f\xcc\n\xdd&V\r\x80\x03X\x06\x00\x00\x00resultq\x00X\x17\x00\x00\x00append('movie',' wars')q\x01C@ce267bb49f34379eaa4617729b7f3611fdd2f8495027b9f73ad63d505c8e56a1q\x02\x87q\x03.", b"\xb8\xf2\xa2\xafo$\x81\x97s\xdfW\xcca\x98\xd5\x054+z\x9cd\xdai\xeb\xe8\xf3\xe3\xfe\xb7\x93j\xeb\x18\xca8\x04hm\xbe\x80\xd6I\x975e\x88\x98%\x002/\x94,\x8bn\xdcq\xc4\xaf\x7f\xeaA3\x02\x80\x03X\x06\x00\x00\x00resultq\x00X\x17\x00\x00\x00append('movie',' wars')q\x01C@ce267bb49f34379eaa4617729b7f3611fdd2f8495027b9f73ad63d505c8e56a1q\x02\x87q\x03.", b"\xc6\x92\x17\xb9\x98tI\x95\xb7\x94\x8d\x08\xba\xacpZc\x89\x17:[\x10\xc0B\x953+\x9e\xfd\xb1\x9f\xdb\r{\x9d\x052\xa6\x93\xd5\\\xab\xf7\xc1a\xfc\xddV\xc2][\x17uK\x17r\x83\xa9\x15\xa6Y\xd2K\x0f\x80\x03X\x06\x00\x00\x00resultq\x00X\x17\x00\x00\x00append('movie',' wars')q\x01C@ce267bb49f34379eaa4617729b7f3611fdd2f8495027b9f73ad63d505c8e56a1q\x02\x87q\x03."]]) 
+2017-11-22 17:21:12,897 - Client0 - DEBUG - checking if received result for request_id 2 can be accepted
+2017-11-22 17:21:12,898 - Client0 - INFO - received result : ('OK',) 
+crptpgraphic hash of the result: b'ce267bb49f34379eaa4617729b7f3611fdd2f8495027b9f73ad63d505c8e56a1'
+2017-11-22 17:21:12,898 - Client0 - INFO - validating result statement of replica 0
+2017-11-22 17:21:12,899 - Client0 - INFO - validating result statement of replica 1
+2017-11-22 17:21:12,900 - Client0 - INFO - validating result statement of replica 2
+2017-11-22 17:21:12,901 - Client0 - DEBUG - valid result received for request_id 2
+2017-11-22 17:21:12,901 - Client0 - DEBUG - Accepting result: ('OK',)  for request id: 2 
+2017-11-22 17:21:12,901 - Client0 - INFO - deleting the request id 2 from pending operations OrderedDict()
+2017-11-22 17:21:12,901 - Client0 - DEBUG - data: OrderedDict([('movie', 'star wars')]) operation: get('movie') result: star wars 
+2017-11-22 17:21:12,902 - Client0 - INFO - building signed request for request id: 3 and operation: get('movie')
+2017-11-22 17:21:12,903 - Client0 - INFO - requesting configuration from olympus : 
+ message sent: ('request_configuration', <Client:5f002#ClientNode0>, 0)
+2017-11-22 17:21:12,905 - Client0 - INFO - configuration received from olympus: OrderedDict([('replica0', {<Replica:57002#ReplicaNode0>}), ('replica1', {<Replica:19002#ReplicaNode1>}), ('replica2', {<Replica:61002#ReplicaNode2>})])
+2017-11-22 17:21:12,906 - Client0 - INFO - request with request id 3 sent to head:
+2017-11-22 17:21:12,931 - Client0 - INFO - response received for request id: 3 from: <Replica:61002#ReplicaNode2> 
+response: (('star wars',), ["get('movie')", ('star wars',), OrderedDict([('replica0', {<Replica:57002#ReplicaNode0>}), ('replica1', {<Replica:19002#ReplicaNode1>}), ('replica2', {<Replica:61002#ReplicaNode2>})]), [b"\x0b\xdb\xa7\xa1\xfa\xde\x84\xbd`\xea\xe1KQ\xcb\xc5\xfd\x9c\x98\x83\x9f*\x9b\xfd\x8as\x97\xa4\x8fbs2E\xbe\xf8yP\x19J\x1d\xd4k\x13\x04\x96\xa6\xda\x18\x05\xeb\xb0f\x05\x8cg\xd8\x1b\xf3\xb4v\x9c\xa5@;\t\x80\x03X\x06\x00\x00\x00resultq\x00X\x0c\x00\x00\x00get('movie')q\x01C@a76bfd2df2d745c34af08fdfe5cf57b5ea611367d136f24dd8d4f84756b86026q\x02\x87q\x03.", b'1x\xaa$R&Ic\xb0\x038\xa3\xf1c\xa3f\x11G\xad"\x0c\xd3\xf8\x93\xa1z{]zJ76\xd7D\xf4F\xeb\x805\rno\xc1\xf8\x9c\xcfN\x104\x8f*^\xef\xafS\xedQ$Y\xd2\xc9\xe9t\x0b\x80\x03X\x06\x00\x00\x00resultq\x00X\x0c\x00\x00\x00get(\'movie\')q\x01C@a76bfd2df2d745c34af08fdfe5cf57b5ea611367d136f24dd8d4f84756b86026q\x02\x87q\x03.', b"\x0cyR\xed\xcc+\x00U\x95\x16\xf9\xc0\xd0a\x03\xa6\xfd7\xe4\xe9e\xaf\x83\x16L\xd3\xcc\xc7\x7f?\x84\xd3\xd688\x8d\xd2\xe0\xa3\xad\xa1(\xfa\xd9\xb9+:\x87\x8f>\x9fn\x85z\xd2\xe93\x158\xd7n:\x80\r\x80\x03X\x06\x00\x00\x00resultq\x00X\x0c\x00\x00\x00get('movie')q\x01C@a76bfd2df2d745c34af08fdfe5cf57b5ea611367d136f24dd8d4f84756b86026q\x02\x87q\x03."]]) 
+2017-11-22 17:21:12,932 - Client0 - DEBUG - checking if received result for request_id 3 can be accepted
+2017-11-22 17:21:12,932 - Client0 - INFO - received result : ('star wars',) 
+crptpgraphic hash of the result: b'a76bfd2df2d745c34af08fdfe5cf57b5ea611367d136f24dd8d4f84756b86026'
+2017-11-22 17:21:12,932 - Client0 - INFO - validating result statement of replica 0
+2017-11-22 17:21:12,933 - Client0 - INFO - validating result statement of replica 1
+2017-11-22 17:21:12,934 - Client0 - INFO - validating result statement of replica 2
+2017-11-22 17:21:12,935 - Client0 - DEBUG - valid result received for request_id 3
+2017-11-22 17:21:12,935 - Client0 - DEBUG - Accepting result: ('star wars',)  for request id: 3 
+2017-11-22 17:21:12,935 - Client0 - INFO - deleting the request id 3 from pending operations OrderedDict()
+2017-11-22 17:21:12,936 - Client0 - DEBUG - data: OrderedDict([('movie', 'star wars')]) operation: get('movie') result: star wars 
+2017-11-22 17:21:12,936 - Client0 - INFO - building signed request for request id: 4 and operation: get('movie')
+2017-11-22 17:21:12,937 - Client0 - INFO - requesting configuration from olympus : 
+ message sent: ('request_configuration', <Client:5f002#ClientNode0>, 0)
+2017-11-22 17:21:12,939 - Client0 - INFO - configuration received from olympus: OrderedDict([('replica0', {<Replica:57002#ReplicaNode0>}), ('replica1', {<Replica:19002#ReplicaNode1>}), ('replica2', {<Replica:61002#ReplicaNode2>})])
+2017-11-22 17:21:12,940 - Client0 - INFO - request with request id 4 sent to head:
+2017-11-22 17:21:13,922 - Client0 - INFO - new configuration received from olympus: OrderedDict([('replica0', {<Replica:57003#ReplicaNode0>}), ('replica1', {<Replica:19003#ReplicaNode1>}), ('replica2', {<Replica:61003#ReplicaNode2>})])
+2017-11-22 17:21:13,922 - Client0 - INFO - configuration updated successfully. new configuration is : OrderedDict([('replica0', {<Replica:57003#ReplicaNode0>}), ('replica1', {<Replica:19003#ReplicaNode1>}), ('replica2', {<Replica:61003#ReplicaNode2>})])
+2017-11-22 17:21:13,923 - Client0 - INFO - response received from olympus : b'\x1f\x80 \xc7\xf8\x0feAJ\xfb|\x01\xeatb\xfa\xc28\x07"\xed\xf1\xd3$`{\\\x10v\xdf\xe0\xdf\x1f\x1b\xa3\x8et\xdf\xa0G\xe4\xa1 \x86\x8c\xb8\x9f\xc1\xe6\xc6=\xbe\xd1\xdb!Gk&_P\xd6\xe3s\x08\x80\x03K\x04X\t\x00\x00\x00star warsq\x00\x85q\x01(X\x0c\x00\x00\x00get(\'movie\')q\x02h\x01ccollections\nOrderedDict\nq\x03)Rq\x04(X\x08\x00\x00\x00replica0q\x05cbuiltins\nset\nq\x06]q\x07cda.common\nProcessId\nq\x08(\x8a\x0b\x02p\x15\xad\xeaiMH\x97\x7f\x05K\x01creplica\nReplica\nq\tX\x00\x00\x00\x00q\nX\x0c\x00\x00\x00ReplicaNode0q\x0bX\t\x00\x00\x00127.0.0.1q\x0cM\x04)M\xb4\x80\x86q\rtq\x0e\x81q\x0fa\x85q\x10Rq\x11X\x08\x00\x00\x00replica1q\x12h\x06]q\x13h\x08(\x8a\x0b\x02\x90\xf1x\xe5\x1fRH\x97\x7f\x05K\x01h\th\nX\x0c\x00\x00\x00ReplicaNode1q\x14X\t\x00\x00\x00127.0.0.1q\x15MZ\x8eM\xbb{\x86q\x16tq\x17\x81q\x18a\x85q\x19Rq\x1aX\x08\x00\x00\x00replica2q\x1bh\x06]q\x1ch\x08(\x8a\x0b\x02\x10\xc6\xf4\x13\xb4VH\x97\x7f\x05K\x01h\th\nX\x0c\x00\x00\x00ReplicaNode2q\x1dX\t\x00\x00\x00127.0.0.1q\x1eM\xc8\x8cM\xebG\x86q\x1ftq \x81q!a\x85q"Rq#u]q$(cnacl.signing\nSignedMessage\nq%C\xaa\x0b\xdb\xa7\xa1\xfa\xde\x84\xbd`\xea\xe1KQ\xcb\xc5\xfd\x9c\x98\x83\x9f*\x9b\xfd\x8as\x97\xa4\x8fbs2E\xbe\xf8yP\x19J\x1d\xd4k\x13\x04\x96\xa6\xda\x18\x05\xeb\xb0f\x05\x8cg\xd8\x1b\xf3\xb4v\x9c\xa5@;\t\x80\x03X\x06\x00\x00\x00resultq\x00X\x0c\x00\x00\x00get(\'movie\')q\x01C@a76bfd2df2d745c34af08fdfe5cf57b5ea611367d136f24dd8d4f84756b86026q\x02\x87q\x03.q&\x85q\'\x81q(}q)(X\x08\x00\x00\x00_messageq*Cj\x80\x03X\x06\x00\x00\x00resultq\x00X\x0c\x00\x00\x00get(\'movie\')q\x01C@a76bfd2df2d745c34af08fdfe5cf57b5ea611367d136f24dd8d4f84756b86026q\x02\x87q\x03.q+X\n\x00\x00\x00_signatureq,C@\x0b\xdb\xa7\xa1\xfa\xde\x84\xbd`\xea\xe1KQ\xcb\xc5\xfd\x9c\x98\x83\x9f*\x9b\xfd\x8as\x97\xa4\x8fbs2E\xbe\xf8yP\x19J\x1d\xd4k\x13\x04\x96\xa6\xda\x18\x05\xeb\xb0f\x05\x8cg\xd8\x1b\xf3\xb4v\x9c\xa5@;\tq-ubh%C\xa6\x85\\\x96\xf7Nx\xd0W\xca\x9a\xeb\x02\x7f\xb0\xca8d\n\xad\xa9y\xe4j\x08\x84\x08\x0b9!\x94\x1f\xdb\xd0\xbd\xa8\x8b\xca\xf7\x0cXeP\xae\x0b\x1er)\xf8\t\xcdhv\x06$\xd3\x03N\xdd\xe4o\xdb,\xd8\x07\x80\x03X\x06\x00\x00\x00resultq\x00X\x08\x00\x00\x00get(\'x\')q\x01C@a76bfd2df2d745c34af08fdfe5cf57b5ea611367d136f24dd8d4f84756b86026q\x02\x87q\x03.q.\x85q/\x81q0}q1(h*Cf\x80\x03X\x06\x00\x00\x00resultq\x00X\x08\x00\x00\x00get(\'x\')q\x01C@a76bfd2df2d745c34af08fdfe5cf57b5ea611367d136f24dd8d4f84756b86026q\x02\x87q\x03.q2h,C@\x85\\\x96\xf7Nx\xd0W\xca\x9a\xeb\x02\x7f\xb0\xca8d\n\xad\xa9y\xe4j\x08\x84\x08\x0b9!\x94\x1f\xdb\xd0\xbd\xa8\x8b\xca\xf7\x0cXeP\xae\x0b\x1er)\xf8\t\xcdhv\x06$\xd3\x03N\xdd\xe4o\xdb,\xd8\x07q3ubetq4\x86q5]q6\x87q7.'
+2017-11-22 17:21:13,924 - Client0 - INFO - pending operations are OrderedDict([(4, "get('movie')")]) False 
+2017-11-22 17:21:13,925 - Client0 - INFO - response received from olympus for request id: 4
+2017-11-22 17:21:13,925 - Client0 - INFO - received result : ('star wars',) 
+crptpgraphic hash of the result: b'a76bfd2df2d745c34af08fdfe5cf57b5ea611367d136f24dd8d4f84756b86026'
+2017-11-22 17:21:13,925 - Client0 - DEBUG - Accepting result: ('star wars',)  for request id: 4 
+2017-11-22 17:21:13,926 - Client0 - INFO - all operations executed. sending DONE message to olympus
+2017-11-22 17:21:13,926 - Client0 - INFO - Message sent: done
+2017-11-22 17:21:13,928 - Client0 - INFO - Final state of the client: OrderedDict([('movie', 'star wars')])

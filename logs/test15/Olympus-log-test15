@@ -1,0 +1,151 @@
+2017-11-22 15:52:01,812 - Olympus - INFO - Olympus setup completed
+2017-11-22 15:52:01,812 - Olympus - INFO - initial settings:
+ num of replicas: 3 
+ num of clients: 1
+2017-11-22 15:52:01,812 - Olympus - INFO -  building head replica
+2017-11-22 15:52:02,050 - Olympus - INFO -  building replica 1
+2017-11-22 15:52:02,298 - Olympus - INFO -  building tail replica
+2017-11-22 15:52:02,635 - Olympus - INFO - starting replica 0
+2017-11-22 15:52:02,637 - Olympus - INFO - starting replica 1
+2017-11-22 15:52:02,639 - Olympus - INFO - starting replica 2
+2017-11-22 15:52:02,640 - Olympus - INFO - generating keys for all replicas
+2017-11-22 15:52:02,641 - Olympus - INFO - initial configuration settings sent to 3 replicas
+2017-11-22 15:52:02,641 - Olympus - INFO - configuration sent: OrderedDict([('replica0', {<Replica:14002#ReplicaNode0>}), ('replica1', {<Replica:a9002#ReplicaNode1>}), ('replica2', {<Replica:8a002#ReplicaNode2>})])
+2017-11-22 15:52:02,641 - Olympus - INFO - system initialization successful
+2017-11-22 15:52:03,942 - Olympus - INFO - received client request for configuration from client with ID : 0
+2017-11-22 15:52:03,942 - Olympus - INFO - Total replicas in configuration: 3
+2017-11-22 15:52:03,942 - Olympus - INFO - configuration sent to client: 
+ configuration: OrderedDict([('replica0', {<Replica:14002#ReplicaNode0>}), ('replica1', {<Replica:a9002#ReplicaNode1>}), ('replica2', {<Replica:8a002#ReplicaNode2>})])
+2017-11-22 15:52:03,942 - Olympus - INFO -  received public key of client : <Client:94002#ClientNode0>
+2017-11-22 15:52:03,942 - Olympus - INFO - sending client public key to all replicas
+2017-11-22 15:52:03,942 - Olympus - INFO -  sent client public key to all replicas
+2017-11-22 15:52:03,942 - Olympus - INFO - sending acknowledgement to client on receipt of it public key
+2017-11-22 15:52:03,973 - Olympus - INFO - validating message received from replica <Replica:8a002#ReplicaNode2>
+2017-11-22 15:52:03,973 - Olympus - INFO - sending signed wedge requests to each replica
+2017-11-22 15:52:03,973 - Olympus - INFO - reconfiguring...
+2017-11-22 15:52:03,973 - Olympus - INFO - built all quorum combinations of replicas [({<Replica:14002#ReplicaNode0>}, {<Replica:a9002#ReplicaNode1>}), ({<Replica:14002#ReplicaNode0>}, {<Replica:8a002#ReplicaNode2>}), ({<Replica:a9002#ReplicaNode1>}, {<Replica:8a002#ReplicaNode2>})]
+2017-11-22 15:52:03,973 - Olympus - INFO - sent wedge request to replica0 
+2017-11-22 15:52:03,989 - Olympus - INFO - sent wedge request to replica1 
+2017-11-22 15:52:03,989 - Olympus - INFO - sent wedge request to replica2 
+2017-11-22 15:52:03,989 - Olympus - INFO - validating message received from replica <Replica:14002#ReplicaNode0>
+2017-11-22 15:52:03,989 - Olympus - INFO - verified wedged message from replica: (None, None, OrderedDict([((0, 0), ([0, "put('movie','star')", OrderedDict([('replica0', {<Replica:14002#ReplicaNode0>}), ('replica1', {<Replica:a9002#ReplicaNode1>}), ('replica2', {<Replica:8a002#ReplicaNode2>})]), [b'R\x17\x81"\xbbk\xca3\xc6\x16#\xee\xbe\xc8~\x8d\xeb\x15\x08\x97\x089\xa7b\xfc\xe6W\x89\x07kU\xa3?_\xdbP`v\xd4G\x90\xff(\xca\xe6\x16f\xb7\x95#\xa9\x8br\rJ\xfc\xc6\xba\xa1\xd0\xbd\xfap\t\x80\x03X\x05\x00\x00\x00orderq\x00K\x00X\x13\x00\x00\x00put(\'movie\',\'star\')q\x01\x87q\x02.']], b"\xdf\x1c]\xa7\xb7\xdf\x11\xfd\xb1p\x18\xa5\xa0\xf2dw\xc0)?hM\xc5U\xc7\x0cw\xbaC\\3\xdb\x14\xfc\x9f\xd0^efS\x06\xd7\xc2\xedc\xb7\x07\xbc\xdc\xf4A\x11)\x1a3\xfe\x90}\x15z\xd3\xac\x02\xc1\x0e\x80\x03(K\x00cda.common\nProcessId\nq\x00(\x8a\x0b\x02@\t\xd4\xae\xa4\xef\x01\x96\x7f\x05K\x01cclient\nClient\nq\x01X\x00\x00\x00\x00q\x02X\x0b\x00\x00\x00ClientNode0q\x03X\t\x00\x00\x00127.0.0.1q\x04M\xdbGM\xf1\x87\x86q\x05tq\x06\x81q\x07K\x00X\x13\x00\x00\x00put('movie','star')q\x08tq\t."))])) wedged_statement received: <Replica:14002#ReplicaNode0> 
+2017-11-22 15:52:03,989 - Olympus - INFO - validating message received from replica <Replica:a9002#ReplicaNode1>
+2017-11-22 15:52:03,989 - Olympus - INFO - verified wedged message from replica: (None, None, OrderedDict([((0, 0), ([0, "put('movie','star')", OrderedDict([('replica0', {<Replica:14002#ReplicaNode0>}), ('replica1', {<Replica:a9002#ReplicaNode1>}), ('replica2', {<Replica:8a002#ReplicaNode2>})]), [b'R\x17\x81"\xbbk\xca3\xc6\x16#\xee\xbe\xc8~\x8d\xeb\x15\x08\x97\x089\xa7b\xfc\xe6W\x89\x07kU\xa3?_\xdbP`v\xd4G\x90\xff(\xca\xe6\x16f\xb7\x95#\xa9\x8br\rJ\xfc\xc6\xba\xa1\xd0\xbd\xfap\t\x80\x03X\x05\x00\x00\x00orderq\x00K\x00X\x13\x00\x00\x00put(\'movie\',\'star\')q\x01\x87q\x02.', b"E\xdc\xc6Z#\x96Ij\x050\xcc\xe1\xe8\xcc?J\xf8F\x8b\x1a\xf7+cU\xa2\xcf\xaa\xbe0=\xd0\xacDl>\x01P\x85\xbb\xa3\xf6F}3h\xa4\xb3\x00 \x84a\x12\x8fOU\xdf\x1c\xb4s\x15Mf\x18\x0b\x80\x03X\x05\x00\x00\x00orderq\x00K\x00X\x08\x00\x00\x00get('x')q\x01\x87q\x02."]], b"\xdf\x1c]\xa7\xb7\xdf\x11\xfd\xb1p\x18\xa5\xa0\xf2dw\xc0)?hM\xc5U\xc7\x0cw\xbaC\\3\xdb\x14\xfc\x9f\xd0^efS\x06\xd7\xc2\xedc\xb7\x07\xbc\xdc\xf4A\x11)\x1a3\xfe\x90}\x15z\xd3\xac\x02\xc1\x0e\x80\x03(K\x00cda.common\nProcessId\nq\x00(\x8a\x0b\x02@\t\xd4\xae\xa4\xef\x01\x96\x7f\x05K\x01cclient\nClient\nq\x01X\x00\x00\x00\x00q\x02X\x0b\x00\x00\x00ClientNode0q\x03X\t\x00\x00\x00127.0.0.1q\x04M\xdbGM\xf1\x87\x86q\x05tq\x06\x81q\x07K\x00X\x13\x00\x00\x00put('movie','star')q\x08tq\t."))])) wedged_statement received: <Replica:a9002#ReplicaNode1> 
+2017-11-22 15:52:04,005 - Olympus - DEBUG - wedged statments received from quorum of replicas
+2017-11-22 15:52:04,005 - Olympus - INFO - processing wedged statements of selected quorum ({<Replica:14002#ReplicaNode0>}, {<Replica:a9002#ReplicaNode1>})
+2017-11-22 15:52:04,005 - Olympus - INFO - validating checkpoint in wedged statement
+2017-11-22 15:52:04,005 - Olympus - INFO - validating checkpoint in wedged statement
+2017-11-22 15:52:04,005 - Olympus - DEBUG - consistent checkpoint proof : None 
+2017-11-22 15:52:04,005 - Olympus - INFO - getting init parameters for replicas
+2017-11-22 15:52:04,005 - Olympus - INFO - getting history for slot numbers greater than consistent checkpoint slot number for replica: <Replica:14002#ReplicaNode0>
+2017-11-22 15:52:04,005 - Olympus - INFO - getting history for slot numbers greater than consistent checkpoint slot number for replica: <Replica:a9002#ReplicaNode1>
+2017-11-22 15:52:04,005 - Olympus - INFO -  history sorted on slot numbers: [((0, 0), ([0, "put('movie','star')", OrderedDict([('replica0', {<Replica:14002#ReplicaNode0>}), ('replica1', {<Replica:a9002#ReplicaNode1>}), ('replica2', {<Replica:8a002#ReplicaNode2>})]), [b'R\x17\x81"\xbbk\xca3\xc6\x16#\xee\xbe\xc8~\x8d\xeb\x15\x08\x97\x089\xa7b\xfc\xe6W\x89\x07kU\xa3?_\xdbP`v\xd4G\x90\xff(\xca\xe6\x16f\xb7\x95#\xa9\x8br\rJ\xfc\xc6\xba\xa1\xd0\xbd\xfap\t\x80\x03X\x05\x00\x00\x00orderq\x00K\x00X\x13\x00\x00\x00put(\'movie\',\'star\')q\x01\x87q\x02.']], b"\xdf\x1c]\xa7\xb7\xdf\x11\xfd\xb1p\x18\xa5\xa0\xf2dw\xc0)?hM\xc5U\xc7\x0cw\xbaC\\3\xdb\x14\xfc\x9f\xd0^efS\x06\xd7\xc2\xedc\xb7\x07\xbc\xdc\xf4A\x11)\x1a3\xfe\x90}\x15z\xd3\xac\x02\xc1\x0e\x80\x03(K\x00cda.common\nProcessId\nq\x00(\x8a\x0b\x02@\t\xd4\xae\xa4\xef\x01\x96\x7f\x05K\x01cclient\nClient\nq\x01X\x00\x00\x00\x00q\x02X\x0b\x00\x00\x00ClientNode0q\x03X\t\x00\x00\x00127.0.0.1q\x04M\xdbGM\xf1\x87\x86q\x05tq\x06\x81q\x07K\x00X\x13\x00\x00\x00put('movie','star')q\x08tq\t."))] 
+2017-11-22 15:52:04,005 - Olympus - DEBUG - Slot numbers validated successfully in replica history
+2017-11-22 15:52:04,005 - Olympus - INFO -  history sorted on slot numbers: [((0, 0), ([0, "put('movie','star')", OrderedDict([('replica0', {<Replica:14002#ReplicaNode0>}), ('replica1', {<Replica:a9002#ReplicaNode1>}), ('replica2', {<Replica:8a002#ReplicaNode2>})]), [b'R\x17\x81"\xbbk\xca3\xc6\x16#\xee\xbe\xc8~\x8d\xeb\x15\x08\x97\x089\xa7b\xfc\xe6W\x89\x07kU\xa3?_\xdbP`v\xd4G\x90\xff(\xca\xe6\x16f\xb7\x95#\xa9\x8br\rJ\xfc\xc6\xba\xa1\xd0\xbd\xfap\t\x80\x03X\x05\x00\x00\x00orderq\x00K\x00X\x13\x00\x00\x00put(\'movie\',\'star\')q\x01\x87q\x02.', b"E\xdc\xc6Z#\x96Ij\x050\xcc\xe1\xe8\xcc?J\xf8F\x8b\x1a\xf7+cU\xa2\xcf\xaa\xbe0=\xd0\xacDl>\x01P\x85\xbb\xa3\xf6F}3h\xa4\xb3\x00 \x84a\x12\x8fOU\xdf\x1c\xb4s\x15Mf\x18\x0b\x80\x03X\x05\x00\x00\x00orderq\x00K\x00X\x08\x00\x00\x00get('x')q\x01\x87q\x02."]], b"\xdf\x1c]\xa7\xb7\xdf\x11\xfd\xb1p\x18\xa5\xa0\xf2dw\xc0)?hM\xc5U\xc7\x0cw\xbaC\\3\xdb\x14\xfc\x9f\xd0^efS\x06\xd7\xc2\xedc\xb7\x07\xbc\xdc\xf4A\x11)\x1a3\xfe\x90}\x15z\xd3\xac\x02\xc1\x0e\x80\x03(K\x00cda.common\nProcessId\nq\x00(\x8a\x0b\x02@\t\xd4\xae\xa4\xef\x01\x96\x7f\x05K\x01cclient\nClient\nq\x01X\x00\x00\x00\x00q\x02X\x0b\x00\x00\x00ClientNode0q\x03X\t\x00\x00\x00127.0.0.1q\x04M\xdbGM\xf1\x87\x86q\x05tq\x06\x81q\x07K\x00X\x13\x00\x00\x00put('movie','star')q\x08tq\t."))] 
+2017-11-22 15:52:04,005 - Olympus - DEBUG - Slot numbers validated successfully in replica history
+2017-11-22 15:52:04,005 - Olympus - INFO - length of history for replica : <Replica:14002#ReplicaNode0> is 1 
+2017-11-22 15:52:04,005 - Olympus - INFO - length of history for replica : <Replica:a9002#ReplicaNode1> is 1 
+2017-11-22 15:52:04,005 - Olympus - INFO - histories are consistent, returning true
+2017-11-22 15:52:04,005 - Olympus - DEBUG - history of replica <Replica:a9002#ReplicaNode1> consistent with replica <Replica:14002#ReplicaNode0>
+2017-11-22 15:52:04,005 - Olympus - INFO - longest consistent history found: OrderedDict([((0, 0), ([0, "put('movie','star')", OrderedDict([('replica0', {<Replica:14002#ReplicaNode0>}), ('replica1', {<Replica:a9002#ReplicaNode1>}), ('replica2', {<Replica:8a002#ReplicaNode2>})]), [b'R\x17\x81"\xbbk\xca3\xc6\x16#\xee\xbe\xc8~\x8d\xeb\x15\x08\x97\x089\xa7b\xfc\xe6W\x89\x07kU\xa3?_\xdbP`v\xd4G\x90\xff(\xca\xe6\x16f\xb7\x95#\xa9\x8br\rJ\xfc\xc6\xba\xa1\xd0\xbd\xfap\t\x80\x03X\x05\x00\x00\x00orderq\x00K\x00X\x13\x00\x00\x00put(\'movie\',\'star\')q\x01\x87q\x02.']], b"\xdf\x1c]\xa7\xb7\xdf\x11\xfd\xb1p\x18\xa5\xa0\xf2dw\xc0)?hM\xc5U\xc7\x0cw\xbaC\\3\xdb\x14\xfc\x9f\xd0^efS\x06\xd7\xc2\xedc\xb7\x07\xbc\xdc\xf4A\x11)\x1a3\xfe\x90}\x15z\xd3\xac\x02\xc1\x0e\x80\x03(K\x00cda.common\nProcessId\nq\x00(\x8a\x0b\x02@\t\xd4\xae\xa4\xef\x01\x96\x7f\x05K\x01cclient\nClient\nq\x01X\x00\x00\x00\x00q\x02X\x0b\x00\x00\x00ClientNode0q\x03X\t\x00\x00\x00127.0.0.1q\x04M\xdbGM\xf1\x87\x86q\x05tq\x06\x81q\x07K\x00X\x13\x00\x00\x00put('movie','star')q\x08tq\t."))]) 
+2017-11-22 15:52:04,005 - Olympus - INFO - shortest consistent history found: OrderedDict([((0, 0), ([0, "put('movie','star')", OrderedDict([('replica0', {<Replica:14002#ReplicaNode0>}), ('replica1', {<Replica:a9002#ReplicaNode1>}), ('replica2', {<Replica:8a002#ReplicaNode2>})]), [b'R\x17\x81"\xbbk\xca3\xc6\x16#\xee\xbe\xc8~\x8d\xeb\x15\x08\x97\x089\xa7b\xfc\xe6W\x89\x07kU\xa3?_\xdbP`v\xd4G\x90\xff(\xca\xe6\x16f\xb7\x95#\xa9\x8br\rJ\xfc\xc6\xba\xa1\xd0\xbd\xfap\t\x80\x03X\x05\x00\x00\x00orderq\x00K\x00X\x13\x00\x00\x00put(\'movie\',\'star\')q\x01\x87q\x02.', b"E\xdc\xc6Z#\x96Ij\x050\xcc\xe1\xe8\xcc?J\xf8F\x8b\x1a\xf7+cU\xa2\xcf\xaa\xbe0=\xd0\xacDl>\x01P\x85\xbb\xa3\xf6F}3h\xa4\xb3\x00 \x84a\x12\x8fOU\xdf\x1c\xb4s\x15Mf\x18\x0b\x80\x03X\x05\x00\x00\x00orderq\x00K\x00X\x08\x00\x00\x00get('x')q\x01\x87q\x02."]], b"\xdf\x1c]\xa7\xb7\xdf\x11\xfd\xb1p\x18\xa5\xa0\xf2dw\xc0)?hM\xc5U\xc7\x0cw\xbaC\\3\xdb\x14\xfc\x9f\xd0^efS\x06\xd7\xc2\xedc\xb7\x07\xbc\xdc\xf4A\x11)\x1a3\xfe\x90}\x15z\xd3\xac\x02\xc1\x0e\x80\x03(K\x00cda.common\nProcessId\nq\x00(\x8a\x0b\x02@\t\xd4\xae\xa4\xef\x01\x96\x7f\x05K\x01cclient\nClient\nq\x01X\x00\x00\x00\x00q\x02X\x0b\x00\x00\x00ClientNode0q\x03X\t\x00\x00\x00127.0.0.1q\x04M\xdbGM\xf1\x87\x86q\x05tq\x06\x81q\x07K\x00X\x13\x00\x00\x00put('movie','star')q\x08tq\t."))]) 
+2017-11-22 15:52:04,005 - Olympus - INFO - collecting operations to be sent in catch up
+2017-11-22 15:52:04,005 - Olympus - INFO - catch up sent to replica <Replica:14002#ReplicaNode0> : OrderedDict() 
+2017-11-22 15:52:04,005 - Olympus - INFO - catch up sent to replica <Replica:a9002#ReplicaNode1> : OrderedDict() 
+2017-11-22 15:52:04,005 - Olympus - INFO - validating message received from replica <Replica:8a002#ReplicaNode2>
+2017-11-22 15:52:04,005 - Olympus - INFO - verified wedged message from replica: (None, None, OrderedDict()) wedged_statement received: <Replica:8a002#ReplicaNode2> 
+2017-11-22 15:52:04,005 - Olympus - INFO - validating message received from replica <Replica:14002#ReplicaNode0>
+2017-11-22 15:52:04,020 - Olympus - INFO - received caught_up message from replica: (0, b'6dd791dc9b2bfb5bf0b6bb8d17c0c3c4e13e82b14d2ce4d103fca335257b4f21', OrderedDict([(0, (('OK',), b"\xcf\xa7\xcc2\r\xf4H\x1cPG\x15\xdcZfw2/\x1e\xbb\xd1%q!\xcd\xd9&\xfcf\xff\xcaLh\x99\x8a?6\x84Y\tP4\xaf\x1a\xbc\xb7\xda@p3iY\x00z\xb7\xaf+e\x13Y\xe2\x9bbs\x02\x80\x03X\x06\x00\x00\x00resultq\x00X\x13\x00\x00\x00put('movie','star')q\x01C@ce267bb49f34379eaa4617729b7f3611fdd2f8495027b9f73ad63d505c8e56a1q\x02\x87q\x03.", 0))]))
+2017-11-22 15:52:04,020 - Olympus - INFO - validating message received from replica <Replica:a9002#ReplicaNode1>
+2017-11-22 15:52:04,020 - Olympus - INFO - received caught_up message from replica: (1, b'0a339ed47463defcdee0313a8b1a7da63c49b55fab587780f6dd9c2241f659fa', OrderedDict([(0, (('OK',), b"\xa0n\x8d\xfd\x91\xcb\x9c\x9cG\xf5\xbaq\r\x8a\xdd\xe9\x12.i\xc2+\xdf\xa6z\xa1\xc2\x90\xbc\xed\xda\xb5\xf1x\xa1\xf6\n\xa6\xcf6=&xp1\xd5\x8a-\xb6\x98\xb0\xba=s\x12o\xdf\x96[\x91\xbf\xdfN\r\r\x80\x03X\x06\x00\x00\x00resultq\x00X\x08\x00\x00\x00get('x')q\x01C@ce267bb49f34379eaa4617729b7f3611fdd2f8495027b9f73ad63d505c8e56a1q\x02\x87q\x03.", 0))]))
+2017-11-22 15:52:04,020 - Olympus - DEBUG - caught up message received from quorum replicas
+2017-11-22 15:52:04,020 - Olympus - ERROR - hash violation found for replica : <Replica:a9002#ReplicaNode1>. Choosing a different quorum. 
+2017-11-22 15:52:04,020 - Olympus - INFO - ************************* removing selected quorum from list QC : [({<Replica:14002#ReplicaNode0>}, {<Replica:a9002#ReplicaNode1>}), ({<Replica:14002#ReplicaNode0>}, {<Replica:8a002#ReplicaNode2>}), ({<Replica:a9002#ReplicaNode1>}, {<Replica:8a002#ReplicaNode2>})]
+2017-11-22 15:52:04,020 - Olympus - INFO - ************************* waiting for third replica wedge statement
+2017-11-22 15:52:04,020 - Olympus - INFO - ************************* received third replica wedge statement
+2017-11-22 15:52:04,020 - Olympus - INFO - processing wedged statements of selected quorum ({<Replica:14002#ReplicaNode0>}, {<Replica:8a002#ReplicaNode2>})
+2017-11-22 15:52:04,020 - Olympus - INFO - validating checkpoint in wedged statement
+2017-11-22 15:52:04,020 - Olympus - INFO - validating checkpoint in wedged statement
+2017-11-22 15:52:04,020 - Olympus - DEBUG - consistent checkpoint proof : None 
+2017-11-22 15:52:04,020 - Olympus - INFO - getting init parameters for replicas
+2017-11-22 15:52:04,020 - Olympus - INFO - getting history for slot numbers greater than consistent checkpoint slot number for replica: <Replica:14002#ReplicaNode0>
+2017-11-22 15:52:04,020 - Olympus - INFO - getting history for slot numbers greater than consistent checkpoint slot number for replica: <Replica:8a002#ReplicaNode2>
+2017-11-22 15:52:04,020 - Olympus - INFO -  history sorted on slot numbers: [((0, 0), ([0, "put('movie','star')", OrderedDict([('replica0', {<Replica:14002#ReplicaNode0>}), ('replica1', {<Replica:a9002#ReplicaNode1>}), ('replica2', {<Replica:8a002#ReplicaNode2>})]), [b'R\x17\x81"\xbbk\xca3\xc6\x16#\xee\xbe\xc8~\x8d\xeb\x15\x08\x97\x089\xa7b\xfc\xe6W\x89\x07kU\xa3?_\xdbP`v\xd4G\x90\xff(\xca\xe6\x16f\xb7\x95#\xa9\x8br\rJ\xfc\xc6\xba\xa1\xd0\xbd\xfap\t\x80\x03X\x05\x00\x00\x00orderq\x00K\x00X\x13\x00\x00\x00put(\'movie\',\'star\')q\x01\x87q\x02.']], b"\xdf\x1c]\xa7\xb7\xdf\x11\xfd\xb1p\x18\xa5\xa0\xf2dw\xc0)?hM\xc5U\xc7\x0cw\xbaC\\3\xdb\x14\xfc\x9f\xd0^efS\x06\xd7\xc2\xedc\xb7\x07\xbc\xdc\xf4A\x11)\x1a3\xfe\x90}\x15z\xd3\xac\x02\xc1\x0e\x80\x03(K\x00cda.common\nProcessId\nq\x00(\x8a\x0b\x02@\t\xd4\xae\xa4\xef\x01\x96\x7f\x05K\x01cclient\nClient\nq\x01X\x00\x00\x00\x00q\x02X\x0b\x00\x00\x00ClientNode0q\x03X\t\x00\x00\x00127.0.0.1q\x04M\xdbGM\xf1\x87\x86q\x05tq\x06\x81q\x07K\x00X\x13\x00\x00\x00put('movie','star')q\x08tq\t."))] 
+2017-11-22 15:52:04,020 - Olympus - DEBUG - Slot numbers validated successfully in replica history
+2017-11-22 15:52:04,020 - Olympus - INFO -  history sorted on slot numbers: [] 
+2017-11-22 15:52:04,020 - Olympus - DEBUG - Slot numbers validated successfully in replica history
+2017-11-22 15:52:04,020 - Olympus - INFO - length of history for replica : <Replica:14002#ReplicaNode0> is 1 
+2017-11-22 15:52:04,020 - Olympus - INFO - length of history for replica : <Replica:8a002#ReplicaNode2> is 0 
+2017-11-22 15:52:04,020 - Olympus - INFO - histories are consistent, returning true
+2017-11-22 15:52:04,020 - Olympus - DEBUG - history of replica <Replica:8a002#ReplicaNode2> consistent with replica <Replica:14002#ReplicaNode0>
+2017-11-22 15:52:04,020 - Olympus - INFO - longest consistent history found: OrderedDict([((0, 0), ([0, "put('movie','star')", OrderedDict([('replica0', {<Replica:14002#ReplicaNode0>}), ('replica1', {<Replica:a9002#ReplicaNode1>}), ('replica2', {<Replica:8a002#ReplicaNode2>})]), [b'R\x17\x81"\xbbk\xca3\xc6\x16#\xee\xbe\xc8~\x8d\xeb\x15\x08\x97\x089\xa7b\xfc\xe6W\x89\x07kU\xa3?_\xdbP`v\xd4G\x90\xff(\xca\xe6\x16f\xb7\x95#\xa9\x8br\rJ\xfc\xc6\xba\xa1\xd0\xbd\xfap\t\x80\x03X\x05\x00\x00\x00orderq\x00K\x00X\x13\x00\x00\x00put(\'movie\',\'star\')q\x01\x87q\x02.']], b"\xdf\x1c]\xa7\xb7\xdf\x11\xfd\xb1p\x18\xa5\xa0\xf2dw\xc0)?hM\xc5U\xc7\x0cw\xbaC\\3\xdb\x14\xfc\x9f\xd0^efS\x06\xd7\xc2\xedc\xb7\x07\xbc\xdc\xf4A\x11)\x1a3\xfe\x90}\x15z\xd3\xac\x02\xc1\x0e\x80\x03(K\x00cda.common\nProcessId\nq\x00(\x8a\x0b\x02@\t\xd4\xae\xa4\xef\x01\x96\x7f\x05K\x01cclient\nClient\nq\x01X\x00\x00\x00\x00q\x02X\x0b\x00\x00\x00ClientNode0q\x03X\t\x00\x00\x00127.0.0.1q\x04M\xdbGM\xf1\x87\x86q\x05tq\x06\x81q\x07K\x00X\x13\x00\x00\x00put('movie','star')q\x08tq\t."))]) 
+2017-11-22 15:52:04,020 - Olympus - INFO - shortest consistent history found: OrderedDict() 
+2017-11-22 15:52:04,020 - Olympus - INFO - validated request for operation in diff_history: put('movie','star')
+2017-11-22 15:52:04,020 - Olympus - INFO - collecting operations to be sent in catch up
+2017-11-22 15:52:04,020 - Olympus - INFO - catch up sent to replica <Replica:14002#ReplicaNode0> : OrderedDict() 
+2017-11-22 15:52:04,020 - Olympus - INFO - catch up sent to replica <Replica:8a002#ReplicaNode2> : OrderedDict([((0, 0), ([0, "put('movie','star')", OrderedDict([('replica0', {<Replica:14002#ReplicaNode0>}), ('replica1', {<Replica:a9002#ReplicaNode1>}), ('replica2', {<Replica:8a002#ReplicaNode2>})]), [b'R\x17\x81"\xbbk\xca3\xc6\x16#\xee\xbe\xc8~\x8d\xeb\x15\x08\x97\x089\xa7b\xfc\xe6W\x89\x07kU\xa3?_\xdbP`v\xd4G\x90\xff(\xca\xe6\x16f\xb7\x95#\xa9\x8br\rJ\xfc\xc6\xba\xa1\xd0\xbd\xfap\t\x80\x03X\x05\x00\x00\x00orderq\x00K\x00X\x13\x00\x00\x00put(\'movie\',\'star\')q\x01\x87q\x02.']], b"\xdf\x1c]\xa7\xb7\xdf\x11\xfd\xb1p\x18\xa5\xa0\xf2dw\xc0)?hM\xc5U\xc7\x0cw\xbaC\\3\xdb\x14\xfc\x9f\xd0^efS\x06\xd7\xc2\xedc\xb7\x07\xbc\xdc\xf4A\x11)\x1a3\xfe\x90}\x15z\xd3\xac\x02\xc1\x0e\x80\x03(K\x00cda.common\nProcessId\nq\x00(\x8a\x0b\x02@\t\xd4\xae\xa4\xef\x01\x96\x7f\x05K\x01cclient\nClient\nq\x01X\x00\x00\x00\x00q\x02X\x0b\x00\x00\x00ClientNode0q\x03X\t\x00\x00\x00127.0.0.1q\x04M\xdbGM\xf1\x87\x86q\x05tq\x06\x81q\x07K\x00X\x13\x00\x00\x00put('movie','star')q\x08tq\t."))]) 
+2017-11-22 15:52:04,038 - Olympus - INFO - validating message received from replica <Replica:14002#ReplicaNode0>
+2017-11-22 15:52:04,041 - Olympus - INFO - received caught_up message from replica: (0, b'6dd791dc9b2bfb5bf0b6bb8d17c0c3c4e13e82b14d2ce4d103fca335257b4f21', OrderedDict([(0, (('OK',), b"\xcf\xa7\xcc2\r\xf4H\x1cPG\x15\xdcZfw2/\x1e\xbb\xd1%q!\xcd\xd9&\xfcf\xff\xcaLh\x99\x8a?6\x84Y\tP4\xaf\x1a\xbc\xb7\xda@p3iY\x00z\xb7\xaf+e\x13Y\xe2\x9bbs\x02\x80\x03X\x06\x00\x00\x00resultq\x00X\x13\x00\x00\x00put('movie','star')q\x01C@ce267bb49f34379eaa4617729b7f3611fdd2f8495027b9f73ad63d505c8e56a1q\x02\x87q\x03.", 0))]))
+2017-11-22 15:52:04,042 - Olympus - INFO - validating message received from replica <Replica:8a002#ReplicaNode2>
+2017-11-22 15:52:04,042 - Olympus - INFO - received caught_up message from replica: (2, b'6dd791dc9b2bfb5bf0b6bb8d17c0c3c4e13e82b14d2ce4d103fca335257b4f21', OrderedDict([(0, (('OK',), b"\xfa\xf8d\x89\xd8\x11\xffo\x125\xc1O\xf5\xc6\xe4\x95^\x1f?\xafBs?\xeez\x83,NM\xa5leE\xfc\x98\xc9\x946c\xca\xbb(5\x91\xa6;\x9c\xfd>\x9e\xde\xd7G\xbeX+i\xe4\xa1n0uN\r\x80\x03X\x06\x00\x00\x00resultq\x00X\x13\x00\x00\x00put('movie','star')q\x01C@ce267bb49f34379eaa4617729b7f3611fdd2f8495027b9f73ad63d505c8e56a1q\x02\x87q\x03.", 0))]))
+2017-11-22 15:52:04,042 - Olympus - DEBUG - caught up message received from quorum replicas
+2017-11-22 15:52:04,042 - Olympus - INFO - getting the results and result statements for each client last performed operation
+2017-11-22 15:52:04,042 - Olympus - INFO - result: ('OK',)
+ cryptographic hash of the result: b'ce267bb49f34379eaa4617729b7f3611fdd2f8495027b9f73ad63d505c8e56a1'
+2017-11-22 15:52:04,042 - Olympus - INFO - getting replicas id
+2017-11-22 15:52:04,042 - Olympus - INFO - saved response to request id: 0 of client : 0 
+2017-11-22 15:52:04,042 - Olympus - INFO - all replicas in quorum are valid.
+2017-11-22 15:52:04,042 - Olympus - INFO - asking replica <Replica:14002#ReplicaNode0> for running state. 
+message sent:get_init_running_state 
+2017-11-22 15:52:04,042 - Olympus - INFO - validating message received from replica <Replica:14002#ReplicaNode0>
+2017-11-22 15:52:04,058 - Olympus - INFO - running state received from replica : OrderedDict([('movie', 'star')])
+2017-11-22 15:52:04,058 - Olympus - INFO - generating hash of the running state
+2017-11-22 15:52:04,058 - Olympus - DEBUG - longest consistent history: OrderedDict([((0, 0), ([0, "put('movie','star')", OrderedDict([('replica0', {<Replica:14002#ReplicaNode0>}), ('replica1', {<Replica:a9002#ReplicaNode1>}), ('replica2', {<Replica:8a002#ReplicaNode2>})]), [b'R\x17\x81"\xbbk\xca3\xc6\x16#\xee\xbe\xc8~\x8d\xeb\x15\x08\x97\x089\xa7b\xfc\xe6W\x89\x07kU\xa3?_\xdbP`v\xd4G\x90\xff(\xca\xe6\x16f\xb7\x95#\xa9\x8br\rJ\xfc\xc6\xba\xa1\xd0\xbd\xfap\t\x80\x03X\x05\x00\x00\x00orderq\x00K\x00X\x13\x00\x00\x00put(\'movie\',\'star\')q\x01\x87q\x02.']], b"\xdf\x1c]\xa7\xb7\xdf\x11\xfd\xb1p\x18\xa5\xa0\xf2dw\xc0)?hM\xc5U\xc7\x0cw\xbaC\\3\xdb\x14\xfc\x9f\xd0^efS\x06\xd7\xc2\xedc\xb7\x07\xbc\xdc\xf4A\x11)\x1a3\xfe\x90}\x15z\xd3\xac\x02\xc1\x0e\x80\x03(K\x00cda.common\nProcessId\nq\x00(\x8a\x0b\x02@\t\xd4\xae\xa4\xef\x01\x96\x7f\x05K\x01cclient\nClient\nq\x01X\x00\x00\x00\x00q\x02X\x0b\x00\x00\x00ClientNode0q\x03X\t\x00\x00\x00127.0.0.1q\x04M\xdbGM\xf1\x87\x86q\x05tq\x06\x81q\x07K\x00X\x13\x00\x00\x00put('movie','star')q\x08tq\t."))])
+2017-11-22 15:52:04,058 - Olympus - DEBUG - running state: OrderedDict([('movie', 'star')]) 
+2017-11-22 15:52:04,058 - Olympus - INFO -  building head replica
+2017-11-22 15:52:04,321 - Olympus - INFO -  building replica 1
+2017-11-22 15:52:04,544 - Olympus - INFO -  building tail replica
+2017-11-22 15:52:04,844 - Olympus - INFO - starting replica 0
+2017-11-22 15:52:04,844 - Olympus - INFO - starting replica 1
+2017-11-22 15:52:04,844 - Olympus - INFO - starting replica 2
+2017-11-22 15:52:04,844 - Olympus - INFO - generating keys for all replicas
+2017-11-22 15:52:04,844 - Olympus - INFO - initial configuration settings sent to 3 replicas
+2017-11-22 15:52:04,844 - Olympus - INFO - configuration sent: OrderedDict([('replica0', {<Replica:14003#ReplicaNode0>}), ('replica1', {<Replica:a9003#ReplicaNode1>}), ('replica2', {<Replica:8a003#ReplicaNode2>})])
+2017-11-22 15:52:04,860 - Olympus - INFO - sent notification to client. Message sent: (OrderedDict([('replica0', {<Replica:14003#ReplicaNode0>}), ('replica1', {<Replica:a9003#ReplicaNode1>}), ('replica2', {<Replica:8a003#ReplicaNode2>})]), [b'ae9947b8a91dbad3490ba17bea2d28683bab5a9ba5216e2e5ecb80093383848c', b'a6d2b263facaa8be5496d8e0130d51bb59f4dc98564e2e5f44791e69c57ee55b', b'eeeb26bf3506f0f51feb5be4e9920ec7f0613153e43ac20b21533f5ad1200c00'], b'u\x8bwN3\xfcu\xf4\x1aD\x02\xd7\xb83\xe6\x91\x8d\x18\x81\x98\xae\xfb\xbe\x83\xd2\xe2\xca?\xa9\x889bI\xf3Sv\x82\xf2d\x89\x8c/Q\xe5\x08\xfeX\xe2@\xfb<U\xdc\x12-\x07\x92\xbf\xd0\x0bM]\x01\x04\x80\x03K\x00X\x02\x00\x00\x00OKq\x00\x85q\x01(X\x13\x00\x00\x00put(\'movie\',\'star\')q\x02h\x01ccollections\nOrderedDict\nq\x03)Rq\x04(X\x08\x00\x00\x00replica0q\x05cbuiltins\nset\nq\x06]q\x07cda.common\nProcessId\nq\x08(\x8a\x0b\x02@QdAS\xd2\x01\x96\x7f\x05K\x01creplica\nReplica\nq\tX\x00\x00\x00\x00q\nX\x0c\x00\x00\x00ReplicaNode0q\x0bX\t\x00\x00\x00127.0.0.1q\x0cM\x166M0-\x86q\rtq\x0e\x81q\x0fa\x85q\x10Rq\x11X\x08\x00\x00\x00replica1q\x12h\x06]q\x13h\x08(\x8a\x0b\x02\x90\x8a\xb0+K\xd6\x01\x96\x7f\x05K\x01h\th\nX\x0c\x00\x00\x00ReplicaNode1q\x14X\t\x00\x00\x00127.0.0.1q\x15MU<M\xe1z\x86q\x16tq\x17\x81q\x18a\x85q\x19Rq\x1aX\x08\x00\x00\x00replica2q\x1bh\x06]q\x1ch\x08(\x8a\x0b\x02\xa0\x88\xfc3\'\xda\x01\x96\x7f\x05K\x01h\th\nX\x0c\x00\x00\x00ReplicaNode2q\x1dX\t\x00\x00\x00127.0.0.1q\x1eM\xdd?MQF\x86q\x1ftq \x81q!a\x85q"Rq#u]q$(cnacl.signing\nSignedMessage\nq%C\xb1\xcf\xa7\xcc2\r\xf4H\x1cPG\x15\xdcZfw2/\x1e\xbb\xd1%q!\xcd\xd9&\xfcf\xff\xcaLh\x99\x8a?6\x84Y\tP4\xaf\x1a\xbc\xb7\xda@p3iY\x00z\xb7\xaf+e\x13Y\xe2\x9bbs\x02\x80\x03X\x06\x00\x00\x00resultq\x00X\x13\x00\x00\x00put(\'movie\',\'star\')q\x01C@ce267bb49f34379eaa4617729b7f3611fdd2f8495027b9f73ad63d505c8e56a1q\x02\x87q\x03.q&\x85q\'\x81q(}q)(X\n\x00\x00\x00_signatureq*C@\xcf\xa7\xcc2\r\xf4H\x1cPG\x15\xdcZfw2/\x1e\xbb\xd1%q!\xcd\xd9&\xfcf\xff\xcaLh\x99\x8a?6\x84Y\tP4\xaf\x1a\xbc\xb7\xda@p3iY\x00z\xb7\xaf+e\x13Y\xe2\x9bbs\x02q+X\x08\x00\x00\x00_messageq,Cq\x80\x03X\x06\x00\x00\x00resultq\x00X\x13\x00\x00\x00put(\'movie\',\'star\')q\x01C@ce267bb49f34379eaa4617729b7f3611fdd2f8495027b9f73ad63d505c8e56a1q\x02\x87q\x03.q-ubh%C\xb1\xfa\xf8d\x89\xd8\x11\xffo\x125\xc1O\xf5\xc6\xe4\x95^\x1f?\xafBs?\xeez\x83,NM\xa5leE\xfc\x98\xc9\x946c\xca\xbb(5\x91\xa6;\x9c\xfd>\x9e\xde\xd7G\xbeX+i\xe4\xa1n0uN\r\x80\x03X\x06\x00\x00\x00resultq\x00X\x13\x00\x00\x00put(\'movie\',\'star\')q\x01C@ce267bb49f34379eaa4617729b7f3611fdd2f8495027b9f73ad63d505c8e56a1q\x02\x87q\x03.q.\x85q/\x81q0}q1(h*C@\xfa\xf8d\x89\xd8\x11\xffo\x125\xc1O\xf5\xc6\xe4\x95^\x1f?\xafBs?\xeez\x83,NM\xa5leE\xfc\x98\xc9\x946c\xca\xbb(5\x91\xa6;\x9c\xfd>\x9e\xde\xd7G\xbeX+i\xe4\xa1n0uN\rq2h,Cq\x80\x03X\x06\x00\x00\x00resultq\x00X\x13\x00\x00\x00put(\'movie\',\'star\')q\x01C@ce267bb49f34379eaa4617729b7f3611fdd2f8495027b9f73ad63d505c8e56a1q\x02\x87q\x03.q3ubetq4\x86q5]q6\x87q7.')
+2017-11-22 15:52:04,860 - Olympus - INFO -  sent exit message to all replicas
+2017-11-22 15:52:04,860 - Olympus - INFO - system reinitialized successfully
+2017-11-22 15:52:04,860 - Olympus - DEBUG -  flag reconfig_in_progress set to : False 
+2017-11-22 15:52:04,860 - Olympus - DEBUG -  flag reconfig_in_progress set to : False 
+2017-11-22 15:52:04,860 - Olympus - INFO - t from new_replica False
+2017-11-22 15:52:04,860 - Olympus - INFO - t from new_replica True
+2017-11-22 15:52:04,875 - Olympus - INFO - received client request for configuration from client with ID : 0
+2017-11-22 15:52:04,875 - Olympus - INFO - Total replicas in configuration: 3
+2017-11-22 15:52:04,875 - Olympus - INFO - configuration sent to client: 
+ configuration: OrderedDict([('replica0', {<Replica:14003#ReplicaNode0>}), ('replica1', {<Replica:a9003#ReplicaNode1>}), ('replica2', {<Replica:8a003#ReplicaNode2>})])
+2017-11-22 15:52:04,945 - Olympus - INFO - received client request for configuration from client with ID : 0
+2017-11-22 15:52:04,945 - Olympus - INFO - Total replicas in configuration: 3
+2017-11-22 15:52:04,945 - Olympus - INFO - configuration sent to client: 
+ configuration: OrderedDict([('replica0', {<Replica:14003#ReplicaNode0>}), ('replica1', {<Replica:a9003#ReplicaNode1>}), ('replica2', {<Replica:8a003#ReplicaNode2>})])
+2017-11-22 15:52:05,007 - Olympus - INFO - received client request for configuration from client with ID : 0
+2017-11-22 15:52:05,007 - Olympus - INFO - Total replicas in configuration: 3
+2017-11-22 15:52:05,007 - Olympus - INFO - configuration sent to client: 
+ configuration: OrderedDict([('replica0', {<Replica:14003#ReplicaNode0>}), ('replica1', {<Replica:a9003#ReplicaNode1>}), ('replica2', {<Replica:8a003#ReplicaNode2>})])
+2017-11-22 15:52:05,092 - Olympus - INFO - received client request for configuration from client with ID : 0
+2017-11-22 15:52:05,092 - Olympus - INFO - Total replicas in configuration: 3
+2017-11-22 15:52:05,108 - Olympus - INFO - configuration sent to client: 
+ configuration: OrderedDict([('replica0', {<Replica:14003#ReplicaNode0>}), ('replica1', {<Replica:a9003#ReplicaNode1>}), ('replica2', {<Replica:8a003#ReplicaNode2>})])
+2017-11-22 15:52:05,176 - Olympus - INFO - received client request for configuration from client with ID : 0
+2017-11-22 15:52:05,176 - Olympus - INFO - Total replicas in configuration: 3
+2017-11-22 15:52:05,176 - Olympus - INFO - configuration sent to client: 
+ configuration: OrderedDict([('replica0', {<Replica:14003#ReplicaNode0>}), ('replica1', {<Replica:a9003#ReplicaNode1>}), ('replica2', {<Replica:8a003#ReplicaNode2>})])
+2017-11-22 15:52:05,223 - Olympus - INFO - client :  <Client:94002#ClientNode0> done sending messages. Crrent done_count: 1
+2017-11-22 15:52:05,223 - Olympus - INFO - received DONE: all clients finished sending messages.
+2017-11-22 15:52:05,223 - Olympus - INFO - sent DONE to replica0 
+2017-11-22 15:52:05,223 - Olympus - INFO - sent DONE to replica1 
+2017-11-22 15:52:05,239 - Olympus - INFO - sent DONE to replica2 
+2017-11-22 15:52:05,242 - Olympus - INFO - received final state of replica 1
+2017-11-22 15:52:05,243 - Olympus - INFO - received final state of replica 2
+2017-11-22 15:52:05,245 - Olympus - INFO - received final state of replica 0
+2017-11-22 15:52:05,245 - Olympus - INFO - received Replicas Final State.
+2017-11-22 15:52:05,245 - Olympus - INFO - sent Replica Final States to Master
+2017-11-22 15:52:05,245 - Olympus - INFO -  Olympus terminating

@@ -1,0 +1,18 @@
+test_case_name = test4
+# number of failures to tolerate.  number of replicas is 2t+1.
+t = 1
+# number of clients
+num_client = 2
+# checkpoint interval
+checkpt_interval = 3
+# client timeout, in milliseconds.  if timer expires, resend request 
+# to all replicas, as described in section 3.3.
+client_timeout = 3
+# timeout, in milliseconds, for head and non-head servers, respectively:
+# if timer expires, send reconfiguration request to Olympus
+head_timeout = 3
+nonhead_timeout = 3
+# CLIENT WORKLOAD
+workload[0] = put('movie','star'); get('movie');append('movie',' wars');put('jedi','luke'); get('jedi');append('jedi',' warm');get('jedi');
+workload[1] = put('movie','mission'); get('movie');append('movie',' impossible');put('kunal','wadhwa'); get('kunal');append('kunal',' wadhwa');get('kunal');
+failures[0,0] = result_shuttle(0,3),increment_slot();

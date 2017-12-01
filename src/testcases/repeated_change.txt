@@ -1,0 +1,71 @@
+# system reconfigures four times, due to change_operation and change_result failures.  
+# extra_op failures also occur.
+# scott stoller, 2017-11-26
+
+# !!!!! INSTRUCTIONS !!!!!
+#two versions of the failure scenario appear below.  delete the version for the
+# message counter semantics that you are not using.
+
+# EXPECTED BEHAVIOR
+#the system reconfigures 4 times.
+#clients receive results for all requests.
+#the effect of an extra_op by a replica in a config before the last is
+#not incorporated in the initial state of the next configuration, because
+#replicas that did an extra_op are excluded from quorum used for reconfig.
+
+test_case_name = repeated_change
+t = 3
+num_client = 10
+
+# timeouts, in milliseconds.  you may change them.
+head_timeout = 3000
+nonhead_timeout = 3000
+
+# checkpoint interval.
+checkpt_interval = 4
+
+# CLIENT WORKLOAD
+workload[0] = put('0','0'); append('0','1'); append('0','2'); append('0','3'); get('0')
+workload[1] = put('1','0'); append('1','1'); append('1','2'); append('1','3'); get('1')
+workload[2] = put('2','0'); append('2','1'); append('2','2'); append('2','3'); get('2')
+workload[3] = put('3','0'); append('3','1'); append('3','2'); append('3','3'); get('3')
+workload[4] = put('4','0'); append('4','1'); append('4','2'); append('4','3'); get('4')
+workload[5] = put('5','0'); append('5','1'); append('5','2'); append('5','3'); get('5')
+workload[6] = put('6','0'); append('6','1'); append('6','2'); append('6','3'); get('6')
+workload[7] = put('7','0'); append('7','1'); append('7','2'); append('7','3'); get('7')
+workload[8] = put('8','0'); append('8','1'); append('8','2'); append('8','3'); get('8')
+workload[9] = put('9','0'); append('9','1'); append('9','2'); append('9','3'); get('9')
+
+# FAILURE SCENARIO: MESSAGE COUNTERS RESET ACROSS CONFIGS
+failures[0,0] = checkpoint(0),extra_op()
+failures[0,1] = checkpoint(0),extra_op(); checkpoint(1),change_result()
+failures[0,2] = checkpoint(0),extra_op()
+#
+failures[1,1] = checkpoint(0),extra_op()
+failures[1,2] = checkpoint(0),extra_op(); checkpoint(1),change_operation()
+failures[1,3] = checkpoint(0),extra_op()
+#
+failures[2,2] = checkpoint(0),extra_op()
+failures[2,3] = checkpoint(0),extra_op(); checkpoint(1),change_result()
+failures[2,4] = checkpoint(0),extra_op()
+#
+failures[3,3] = checkpoint(0),extra_op()
+failures[3,4] = checkpoint(0),extra_op(); checkpoint(1),change_operation()
+failures[3,5] = checkpoint(0),extra_op()
+
+# FAILURE SCENARIO: MESSAGE COUNTERS PROPAGATED ACROSS CONFIGS
+failures[0,0] = checkpoint(0),extra_op()
+failures[0,1] = checkpoint(0),extra_op(); checkpoint(1),change_result()
+failures[0,2] = checkpoint(0),extra_op()
+#
+failures[1,1] = checkpoint(2),extra_op()
+failures[1,2] = checkpoint(2),extra_op(); checkpoint(3),change_operation()
+failures[1,3] = checkpoint(2),extra_op()
+#
+failures[2,2] = checkpoint(4),extra_op()
+failures[2,3] = checkpoint(4),extra_op(); checkpoint(5),change_result()
+failures[2,4] = checkpoint(4),extra_op()
+#
+failures[3,3] = checkpoint(6),extra_op()
+failures[3,4] = checkpoint(6),extra_op(); checkpoint(7),change_operation()
+failures[3,5] = checkpoint(6),extra_op()

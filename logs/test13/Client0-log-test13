@@ -1,0 +1,31 @@
+2017-11-22 17:20:51,096 - Client0 - INFO - Client setup completed
+2017-11-22 17:20:51,096 - Client0 - INFO - initial settings: client ID : 0 
+ workload : put('movie','a');
+2017-11-22 17:20:51,098 - Client0 - INFO - valid operations : ["put('movie','a')"]
+2017-11-22 17:20:51,099 - Client0 - DEBUG - data: OrderedDict([('movie', 'a')]) operation: put('movie','a') result: OK 
+2017-11-22 17:20:51,099 - Client0 - INFO - building signed request for request id: 0 and operation: put('movie','a')
+2017-11-22 17:20:51,101 - Client0 - INFO - requesting configuration from olympus : 
+ message sent: ('request_configuration', <Client:9b002#ClientNode0>, 0)
+2017-11-22 17:20:51,103 - Client0 - INFO - configuration received from olympus: OrderedDict([('replica0', {<Replica:a4002#ReplicaNode0>}), ('replica1', {<Replica:33002#ReplicaNode1>}), ('replica2', {<Replica:83002#ReplicaNode2>}), ('replica3', {<Replica:41002#ReplicaNode3>}), ('replica4', {<Replica:e7002#ReplicaNode4>})])
+2017-11-22 17:20:51,129 - Client0 - INFO - handshake not performed. sending public key to olympus.
+2017-11-22 17:20:51,130 - Client0 - INFO - sent public key to olympus. 
+ message sent: ('client_public_key', 0, <Client:9b002#ClientNode0>, b'f4576e4e08ee0a7bd8cec46e314b9b850bc619be65d18c2359c25c73d479a373')
+2017-11-22 17:20:51,136 - Client0 - INFO - public keys received for 5 replicas in current configuration
+2017-11-22 17:20:51,136 - Client0 - INFO - handshake completed
+2017-11-22 17:20:51,137 - Client0 - INFO - request with request id 0 sent to head:
+2017-11-22 17:20:51,231 - Client0 - INFO - response received for request id: 0 from: <Replica:e7002#ReplicaNode4> 
+response: (('OK',), ["put('movie','a')", ('OK',), OrderedDict([('replica0', {<Replica:a4002#ReplicaNode0>}), ('replica1', {<Replica:33002#ReplicaNode1>}), ('replica2', {<Replica:83002#ReplicaNode2>}), ('replica3', {<Replica:41002#ReplicaNode3>}), ('replica4', {<Replica:e7002#ReplicaNode4>})]), [b"\xa6\xf2\xad\xd8\xcd\x19\xb5^VB\x97\x12'%A!]\x10w\xe9EJ\x80\xe6\x98\x82\x839X\x97\x15\xbd\x0c^\x0e\x05\xc8\xf0\x02\xe4\x82t\xfc\xca\xe9\xfd%\xbbk\x01\x03\x03\xb9\xf8\x08\xd33\xbf\x8b\x99\x12M\xdd\x0f\x80\x03X\x06\x00\x00\x00resultq\x00X\x10\x00\x00\x00put('movie','a')q\x01C@ce267bb49f34379eaa4617729b7f3611fdd2f8495027b9f73ad63d505c8e56a1q\x02\x87q\x03.", b"\x0f\xb1\x01\x1d\xben\xc4\xa6\x10)\x98t5i\xfai\xe2\x00;V\x9e\xca\x1c\xfc\\\xb7\xf4\x06*\x08<l,D\xfc)\xe1H#\xbdh=\xd9\x9d\xd5A\x04l&5\xfc\xde\x02\xf657\xaf\x87\x91\x14\x92NS\t\x80\x03X\x06\x00\x00\x00resultq\x00X\x10\x00\x00\x00put('movie','a')q\x01C@ce267bb49f34379eaa4617729b7f3611fdd2f8495027b9f73ad63d505c8e56a1q\x02\x87q\x03.", b"\xf6|5\xb8\xf91\xb5\xe9\xd4\xddlV\xa5\xd63|\x14\xaa\xf9\xb8S\xe8R\x94\x1cC,5\x7fM\xae\r\xb5\x89\xdd\xe7\x97\x0e\xf2\xd2\xd7\x81\r_\xbd\xcd\x13!\xbdy\xca\x9a\xf0\xf8Wi\xaf}T\x81_\xbbi\x02\x80\x03X\x06\x00\x00\x00resultq\x00X\x10\x00\x00\x00put('movie','a')q\x01C@ce267bb49f34379eaa4617729b7f3611fdd2f8495027b9f73ad63d505c8e56a1q\x02\x87q\x03.", b"\xfbW\xcf\xd4\xe5GSZ\\\x12N\xabV\x07\xfa\x07b\xf0\xa9w\xef\x0f7\xf1\xbf\\\xf2\xcb\xcc\x8c\xc9l\x80\xd7\xdep5\xe7\n1H\xbfQ\x033i\xef \xfd\xc4\x07\x04\x1d\xe33\xa0\xd7D\xd8\xf7S\xc4j\x04\x80\x03X\x06\x00\x00\x00resultq\x00X\x10\x00\x00\x00put('movie','a')q\x01C@ce267bb49f34379eaa4617729b7f3611fdd2f8495027b9f73ad63d505c8e56a1q\x02\x87q\x03.", b'y\xc6\xd9\x99/\x9a\x9b\xca\xc0[\xb7\xc8\xf4A\xdd\xa7\xd8\xa8]m[\xd9\x12\x08A\xac"\xecsou~(E\'\x14\xbcijI\xa8{\xd4\xe7\xd9\x1e $%v\xd9\x12\xf0"\x9e@\xcd`\x07*\xbdm\xd8\x08\x80\x03X\x06\x00\x00\x00resultq\x00X\x10\x00\x00\x00put(\'movie\',\'a\')q\x01C@ce267bb49f34379eaa4617729b7f3611fdd2f8495027b9f73ad63d505c8e56a1q\x02\x87q\x03.']]) 
+2017-11-22 17:20:51,232 - Client0 - DEBUG - checking if received result for request_id 0 can be accepted
+2017-11-22 17:20:51,232 - Client0 - INFO - received result : ('OK',) 
+crptpgraphic hash of the result: b'ce267bb49f34379eaa4617729b7f3611fdd2f8495027b9f73ad63d505c8e56a1'
+2017-11-22 17:20:51,232 - Client0 - INFO - validating result statement of replica 0
+2017-11-22 17:20:51,235 - Client0 - INFO - validating result statement of replica 1
+2017-11-22 17:20:51,237 - Client0 - INFO - validating result statement of replica 2
+2017-11-22 17:20:51,241 - Client0 - INFO - validating result statement of replica 3
+2017-11-22 17:20:51,244 - Client0 - INFO - validating result statement of replica 4
+2017-11-22 17:20:51,247 - Client0 - DEBUG - valid result received for request_id 0
+2017-11-22 17:20:51,247 - Client0 - DEBUG - Accepting result: ('OK',)  for request id: 0 
+2017-11-22 17:20:51,247 - Client0 - INFO - deleting the request id 0 from pending operations OrderedDict()
+2017-11-22 17:20:51,247 - Client0 - INFO - all operations executed. sending DONE message to olympus
+2017-11-22 17:20:51,248 - Client0 - INFO - Message sent: done
+2017-11-22 17:20:51,249 - Client0 - INFO - Final state of the client: OrderedDict([('movie', 'a')])

@@ -1,0 +1,18 @@
+2017-11-22 17:20:27,879 - Master_logger - INFO - building master
+2017-11-22 17:20:28,183 - Master - INFO - Master setup completed
+2017-11-22 17:20:28,184 - Master_logger - INFO - starting master
+2017-11-22 17:20:28,185 - Master_logger - INFO - building olympus
+2017-11-22 17:20:35,788 - Master_logger - INFO - starting olympus
+2017-11-22 17:20:35,789 - Master_logger - INFO - building client : 0
+2017-11-22 17:20:37,942 - Master_logger - INFO - starting client : 0
+2017-11-22 17:20:38,100 - Master - INFO - received client0 final state: OrderedDict([('movie', 'star wars')])
+2017-11-22 17:20:38,106 - Master - INFO - received all replicas final state: OrderedDict([(1, OrderedDict([('movie', 'star wars')])), (2, OrderedDict([('movie', 'star wars')])), (0, OrderedDict([('movie', 'star wars')]))])
+2017-11-22 17:21:02,580 - Master_logger - INFO - building master
+2017-11-22 17:21:02,886 - Master - INFO - Master setup completed
+2017-11-22 17:21:02,887 - Master_logger - INFO - starting master
+2017-11-22 17:21:02,888 - Master_logger - INFO - building olympus
+2017-11-22 17:21:10,865 - Master_logger - INFO - starting olympus
+2017-11-22 17:21:10,866 - Master_logger - INFO - building client : 0
+2017-11-22 17:21:12,787 - Master_logger - INFO - starting client : 0
+2017-11-22 17:21:13,930 - Master - INFO - received client0 final state: OrderedDict([('movie', 'star wars')])
+2017-11-22 17:21:14,036 - Master - INFO - received all replicas final state: OrderedDict([(0, OrderedDict([('movie', 'star wars')])), (2, OrderedDict([('movie', 'star wars')])), (1, OrderedDict([('movie', 'star wars')]))])

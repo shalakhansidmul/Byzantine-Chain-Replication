@@ -1,0 +1,161 @@
+import os
+import sys
+import logging
+import time
+import datetime
+import uuid
+import traceback
+config(channel is {fifo, reliable}, clock is lamport)
+
+da_client = import_da('client')
+da_replica = import_da('replica')
+da_olympus = import_da('olympus')
+
+
+class Master(process):
+    def setup(config_params):
+        self.test_case = config_params['test_case_name']
+        self.client_data = {}
+        self.replica_data = {}
+        self.num_replicas = 2 * config_params['t'] + 1
+        self.num_client = config_params['num_client']
+        self.logger = initialize_logger()
+        logger.info('Master setup completed')
+
+    # create logger for logging into Olympus.log file
+    def initialize_logger():
+        logger = logging.getLogger('Master')
+        logger.setLevel(logging.DEBUG)
+        path = 'Master-log-' + test_case
+        fh = logging.FileHandler(path)
+        fh.setLevel(logging.DEBUG)
+        formatter = logging.Formatter(
+            '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        fh.setFormatter(formatter)
+        logger.addHandler(fh)
+        return logger
+
+    def testcase():
+        await(len(replica_data) == num_replicas)
+        logger.info('comparing all replicas final state of data dictionary')
+        for i in range(num_replicas):
+            for j in range(i + 1, num_replicas):
+                replica1 = replica_data[i]
+                replica2 = replica_data[j]
+                length_replica1 = len(replica1)
+                length_replica2 = len(replica2)
+                if length_replica1 != length_replica2:
+                    logger.error(
+                        'replica%s and replica%s final state are different',
+                        i,
+                        j)
+                    logger.error('test case FAILED')
+                    return
+                for k in replica1.keys():
+                    if replica1[k] != replica2[k]:
+                        logger.error(
+                            'replica%s & replica%s final state are different',
+                            i,
+                            j)
+                        logger.error('test case FAILED')
+                        return
+        logger.info('all replicas have same final state of data dictionary')
+        logger.info('replicas final state %s ', replica_data)
+        await(len(client_data) == num_client)
+        logger.info('client final state %s ', client_data)
+        logger.info('test case PASSED')
+
+    def run():
+        start_time = time.time()
+        await(len(client_data) == num_client)
+        output("All clients done.")
+        end_time = time.time()
+        output("elapsed time (seconds): ", end_time - start_time)
+        testcase()
+        await(received('done'))
+
+    def receive(msg=('client_final_state', client_id, data)):
+        client_data[client_id] = data
+        logger.info('received client%s final state: %s', client_id, data)
+
+    def receive(msg=('replicas_final_state', data)):
+        logger.info('received all replicas final state: %s', data)
+        replica_data = data
+
+# read the configuration file into a dictonary for initial configuration
+
+
+def read_config(config_file):
+    config_params = {}
+    with open(config_file, 'r') as f:
+        for line in f:
+            if line[0] != '#':
+                (key, sep, val) = line.partition('=')
+                # if the line does not contain '=', it is invalid and hence
+                # ignored
+                if len(sep) != 0:
+                    val = val.strip()
+                    config_params[key.strip()] = int(
+                        val) if str.isdecimal(val) else val
+    return config_params
+
+
+def main():
+    config_file = sys.argv[1]
+    # creates an instance of Olympus process
+
+    def build_master(config_params):
+        master = new(Master, args=(config_params,))
+        return master
+
+    # creates an instance of Olympus process
+    def build_olympus(config_params, master):
+        olympus = new(
+            da_olympus.Olympus,
+            args=(
+                config_params,
+                master,
+            ),
+            at='OlympusNode')
+        return olympus
+
+    # creates an instance of client process
+    def build_client(config_params, olympus, master, client_id):
+        client = new(
+            da_client.Client,
+            args=(
+                config_params,
+                olympus,
+                master,
+                client_id),
+            at='ClientNode' +
+            str(client_id))
+        return client
+
+    # read the configuration file
+    config_params = read_config(config_file)
+    logger = logging.getLogger('Master_logger')
+    logger.setLevel(logging.DEBUG)
+    path = 'Master-log-' + config_params['test_case_name']
+    fh = logging.FileHandler(path)
+    fh.setLevel(logging.DEBUG)
+    formatter = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    fh.setFormatter(formatter)
+    logger.addHandler(fh)
+    # create and start master process
+    logger.info('building master')
+    master = build_master(config_params)
+    logger.info('starting master')
+    start(master)
+    # create and start olympus process
+    logger.info('building olympus')
+    olympus = build_olympus(config_params, master)
+    logger.info('starting olympus')
+    start(olympus)
+    # start the clients specified in configuration file
+    for client_id in range(config_params['num_client']):
+        logger.info('building client : %s', client_id)
+        client = build_client(config_params, olympus, master, client_id)
+        logger.info('starting client : %s', client_id)
+        start(client)
