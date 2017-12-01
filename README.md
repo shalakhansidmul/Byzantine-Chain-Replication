@@ -4,7 +4,7 @@ Team members:
 PLATFORM.  
 Language used in this implementation of Byzantine Chain Replication based SHUTTLE protocol is DistAlgo.
 Following are the platform specifications:
-	1. DistAlgo version 1.0.9
+	1. DistAlgo version 1.0.11
 	2. Python version 3.5.2
 	3. Testing and implementation carried out on Windows 10 operating system
 	4. Types of hosts used in testing and implementation: Laptops (without any VMs)
